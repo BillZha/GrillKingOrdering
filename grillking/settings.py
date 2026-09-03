@@ -57,6 +57,7 @@ INSTALLED_APPS = [
 ]
 
 cloudinary.config(
+    cloudinary_url=os.environ.get("CLOUDINARY_URL"),
     secure=True
 )
 
