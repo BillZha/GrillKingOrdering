@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Grill King QR Codes</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns:
+                repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .table-card {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .table-card h2 {
+            margin-bottom: 15px;
+        }
+
+        .table-card img {
+            width: 180px;
+            height: 180px;
+        }
+
+        .url {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #777;
+            word-break: break-all;
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .table-card {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>GRILL KING · TABLE QR CODES</h1>
+
+<div class="grid">
+
+    {% for table in tables %}
+
+        <div class="table-card">
+
+            <h2>
+                Table {{ table.number|stringformat:"02d" }}
+            </h2>
+
+            <img
+                src="data:image/png;base64,{{ table.qr }}"
+                alt="Table {{ table.number }} QR Code"
+            >
+
+            <div class="url">
+                {{ table.url }}
+            </div>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Grill King Order</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f6f6f6;
+            color: #222;
+        }
+
+        .header {
+            background: #111;
+            color: white;
+            padding: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .table-info {
+            background: white;
+            padding: 14px 20px;
+            border-bottom: 1px solid #ddd;
+            font-weight: bold;
+        }
+
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 15px;
+            background: white;
+            position: sticky;
+            top: 0;
+        }
+
+        .category-btn {
+            border: none;
+            background: #eeeeee;
+            padding: 10px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .category-btn.active {
+            background: #111;
+            color: white;
+        }
+
+        .menu-container {
+            max-width: 700px;
+            margin: auto;
+            padding: 15px;
+        }
+
+        .section-title {
+            margin: 20px 0 12px;
+            font-size: 22px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 12px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            cursor: pointer;
+        }
+
+        .item-info h3 {
+            margin-bottom: 7px;
+        }
+
+        .item-description {
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .price {
+            font-weight: bold;
+            font-size: 17px;
+        }
+
+        .add-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            border: none;
+            background: #111;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .cart {
+            position: fixed;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            width: calc(100% - 30px);
+            max-width: 670px;
+
+            background: #111;
+            color: white;
+            padding: 16px 20px;
+
+            border-radius: 14px;
+
+            display: flex;
+            justify-content: space-between;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+}
+        
+.bottom-space {
+    height: 100px;
+}
+
+.cart-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+}
+
+.cart-panel {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background: white;
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    max-height: 75vh;
+    overflow-y: auto;
+}
+
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.cart-header button {
+    border: none;
+    background: none;
+    font-size: 30px;
+    cursor: pointer;
+}
+
+.cart-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.quantity-controls button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.cart-checkout {
+    margin-top: 20px;
+}
+
+.cart-checkout span {
+    display: block;
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+
+.cart-checkout button {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: #111;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+ .item-content {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex: 1;
+}
+
+.item-image {
+    width: 95px;
+    height: 95px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.menu-item {
+    cursor: pointer;
+}
+
+.item-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+}
+
+.item-panel {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+
+    width: 100%;
+    max-width: 700px;
+
+    background: white;
+    border-radius: 22px 22px 0 0;
+    padding: 20px;
+
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.item-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.item-modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.item-close {
+    border: none;
+    background: none;
+    font-size: 32px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.detail-image {
+    width: 100%;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 14px;
+    margin-bottom: 16px;
+}
+
+.detail-description {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.detail-price {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 18px;
+}
+
+.detail-add-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    background: #111;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+
+}
+
+.option-section {
+    margin: 20px 0;
+}
+
+.option-section h3 {
+    font-size: 17px;
+    margin-bottom: 10px;
+}
+
+.option-section label {
+    display: block;
+    padding: 8px 0;
+    font-size: 15px;
+}
+
+.option-section input {
+    margin-right: 8px;
+}
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>GRILL KING</h1>
+        <p>Scan · Order · Enjoy</p>
+    </div>
+
+    <div class="table-info">
+    Table {{ table_number|stringformat:"02d" }}
+</div>
+
+    <div class="categories">
+    <button class="category-btn active" data-category="popular">
+        Popular
+    </button>
+
+    {% for category in categories %}
+        {% if category.name != "Popular" %}
+            <button class="category-btn"
+                    data-category="{{ category.id }}">
+                {{ category.name }}
+            </button>
+        {% endif %}
+    {% endfor %}
+</div>
+
+    <div class="menu-container">
+
+        <h2 class="section-title" id="section-title">Popular</h2>
+
+<div id="menu-items">
+
+    {% for item in items %}
+
+<div class="menu-item"
+     data-category="{{ item.category.id }}"
+     data-popular="{{ item.is_popular|yesno:'true,false' }}"
+     data-name="{{ item.name }}"
+     data-description="{{ item.description }}"
+     data-price="{{ item.price }}"
+     data-image="{% if item.image %}{{ item.image.url }}{% endif %}"
+     onclick="openItemModal(this)">
+
+    <div class="item-content">
+
+        {% if item.image %}
+            <img
+                src="{{ item.image.url }}"
+                class="item-image"
+                alt="{{ item.name }}"
+            >
+        {% endif %}
+
+        <div class="item-info">
+
+            <h3>{{ item.name }}</h3>
+
+            {% if item.description %}
+                <div class="item-description">
+                    {{ item.description }}
+                </div>
+            {% endif %}
+
+            <div class="price">
+                ${{ item.price }}
+            </div>
+
+        </div>
+
+    </div>
+
+    {% if item.is_sold_out %}
+
+        <button
+            class="add-btn"
+            disabled
+            onclick="event.stopPropagation();"
+            style="background:#aaa;">
+            ×
+        </button>
+
+    {% else %}
+
+        <button
+            class="add-btn"
+            onclick="event.stopPropagation(); addItem(
+                '{{ item.name|escapejs }}',
+                {{ item.price }}
+            )">
+            +
+        </button>
+
+    {% endif %}
+
+</div>
+
+{% empty %}
+
+<p>No items available.</p>
+
+{% endfor %}
+
+</div>
+
+        <div class="bottom-space"></div>
+
+    </div>
+<div id="item-modal" class="item-modal">
+    <div class="item-panel">
+
+        <div class="item-modal-header">
+            <h2 id="detail-name">Item</h2>
+
+            <button
+                type="button"
+                class="item-close"
+                onclick="closeItemModal()">
+                ×
+            </button>
+        </div>
+
+        <img
+            id="detail-image"
+            class="detail-image"
+            alt=""
+            style="display:none;"
+        >
+
+        <p id="detail-description" class="detail-description"></p>
+
+        <div id="detail-price" class="detail-price">
+    $0.00
+</div>
+
+<div class="option-section">
+    <h3>Spicy Level</h3>
+
+    <label>
+        <input
+            type="radio"
+            name="spicy"
+            value="Not Spicy"
+            checked
+        >
+        Not Spicy
+    </label>
+
+    <label>
+        <input
+            type="radio"
+            name="spicy"
+            value="Spicy"
+        >
+        Spicy
+    </label>
+</div>
+
+<button
+    type="button"
+    id="detail-add-btn"
+    class="detail-add-btn">
+    Add to Order
+</button>
+
+    </div>
+</div>
+<div class="cart" onclick="openCart()">
+    <span id="cart-count">0 items</span>
+    <strong id="cart-total">View Cart · $0.00</strong>
+</div>
+
+<div id="cart-modal" class="cart-modal">
+    <div id="success-modal" class="item-modal">
+    <div class="item-panel">
+
+        <div class="item-modal-header">
+            <h2>Order Received</h2>
+
+            <button
+                type="button"
+                class="item-close"
+                onclick="closeSuccessModal()">
+                ×
+            </button>
+        </div>
+
+        <div style="text-align:center; padding:20px 0;">
+
+            <h2 id="success-order-number">
+                Order #0
+            </h2>
+
+            <p id="success-table-number"
+               style="margin-top:10px; font-size:18px;">
+                Table 00
+            </p>
+
+            <p style="margin-top:15px; color:#666;">
+                Your order has been received.
+                Please wait while we prepare your food.
+            </p>
+
+        </div>
+
+        <button
+            class="detail-add-btn"
+            onclick="closeSuccessModal()">
+            Done
+        </button>
+
+    </div>
+</div>
+    <div class="cart-panel">
+        <div class="cart-header">
+            <h2>Your Order</h2>
+            <button onclick="closeCart()">×</button>
+        </div>
+
+        <div id="cart-items"></div>
+
+        <div class="cart-checkout">
+            <span id="checkout-total">Total: $0.00</span>
+            <button id="place-order-btn" onclick="placeOrder()">
+    Place Order
+</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let cart = [];
+
+    function placeOrder() {
+    if (cart.length === 0) {
+        alert("Your cart is empty.");
+        return;
+    }
+    function closeSuccessModal() {
+    document.getElementById("success-modal").style.display = "none";
+}
+
+    const button = document.getElementById("place-order-btn");
+
+    button.disabled = true;
+    button.innerText = "Placing Order...";
+
+    fetch("/place-order/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({
+            table_number: {{ table_number }},
+            cart: cart
+        })
+    })
+
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+
+    cart = [];
+    updateCart();
+    closeCart();
+
+    document.getElementById("success-order-number").innerText =
+        "Order #" + data.order_id;
+
+    document.getElementById("success-table-number").innerText =
+        "Table " + String({{ table_number }}).padStart(2, "0");
+
+    document.getElementById("success-modal").style.display = "block";
+        } else {
+            alert(data.error || "Unable to place order.");
+        }
+    })
+    .catch(error => {
+        console.error(error);
+        alert("Unable to place order.");
+    })
+    .finally(() => {
+        button.disabled = false;
+        button.innerText = "Place Order";
+    });
+}
+    function getCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie && document.cookie !== "") {
+        const cookies = document.cookie.split(";");
+
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+
+            if (cookie.substring(0, name.length + 1) ===
+                (name + "=")) {
+
+                cookieValue = decodeURIComponent(
+                    cookie.substring(name.length + 1)
+                );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+    function addConfiguredItem(name, price) {
+    const spicy =
+        document.querySelector('input[name="spicy"]:checked')?.value || "Not Spicy";
+
+    cart.push({
+        name: name,
+        price: price,
+        quantity: 1,
+        spicy: spicy
+    });
+
+    updateCart();
+}
+
+    function addItem(name, price) {
+        const existingItem = cart.find(item => item.name === name);
+
+        if (existingItem) {
+            existingItem.quantity++;
+        } else {
+            cart.push({
+                name: name,
+                price: price,
+                quantity: 1
+            });
+        }
+
+        updateCart();
+    }
+
+
+    function decreaseItem(name, spicy) {
+    const item = cart.find(item =>
+        item.name === name &&
+        item.spicy === spicy
+    );
+
+    if (!item) return;
+
+    item.quantity--;
+
+    if (item.quantity <= 0) {
+        cart = cart.filter(item =>
+            !(item.name === name && item.spicy === spicy)
+        );
+    }
+
+    updateCart();
+    renderCart();
+}
+
+
+function increaseItem(name, spicy) {
+    const item = cart.find(item =>
+        item.name === name &&
+        item.spicy === spicy
+    );
+
+    if (item) {
+        item.quantity++;
+    }
+
+    updateCart();
+    renderCart();
+}
+
+    function updateCart() {
+        let count = 0;
+        let total = 0;
+
+        cart.forEach(item => {
+            count += item.quantity;
+            total += item.price * item.quantity;
+        });
+
+        document.getElementById("cart-count").innerText =
+            count + (count === 1 ? " item" : " items");
+
+        document.getElementById("cart-total").innerText =
+            "View Cart · $" + total.toFixed(2);
+
+        document.getElementById("checkout-total").innerText =
+            "Total: $" + total.toFixed(2);
+    }
+
+
+    function openCart() {
+        renderCart();
+        document.getElementById("cart-modal").style.display = "block";
+    }
+
+
+    function closeCart() {
+        document.getElementById("cart-modal").style.display = "none";
+    }
+
+
+   function renderCart() {
+    const container = document.getElementById("cart-items");
+
+    container.innerHTML = "";
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Your cart is empty.</p>";
+        return;
+    }
+
+    cart.forEach(item => {
+        const row = document.createElement("div");
+
+        row.className = "cart-row";
+
+        row.innerHTML = `
+            <div>
+                <strong>${item.name}</strong>
+
+                <div>
+                    $${item.price.toFixed(2)}
+                </div>
+
+                ${item.spicy
+                    ? `<small>${item.spicy}</small>`
+                    : ""
+                }
+            </div>
+
+            <div class="quantity-controls">
+
+                <button onclick="decreaseItem(
+                    '${item.name}',
+                    '${item.spicy || ""}'
+                )">
+                    −
+                </button>
+
+                <strong>${item.quantity}</strong>
+
+                <button onclick="increaseItem(
+                    '${item.name}',
+                    '${item.spicy || ""}'
+                )">
+                    +
+                </button>
+
+            </div>
+        `;
+
+        container.appendChild(row);
+    });
+}
+
+
+function openItemModal(element) {
+    const name = element.dataset.name;
+    const description = element.dataset.description;
+    const price = Number(element.dataset.price);
+    const imageUrl = element.dataset.image;
+
+    const defaultSpicy = document.querySelector(
+        'input[name="spicy"][value="Not Spicy"]'
+    );
+
+    if (defaultSpicy) {
+        defaultSpicy.checked = true;
+    }
+
+    document.getElementById("detail-name").innerText = name;
+    document.getElementById("detail-description").innerText = description || "";
+    document.getElementById("detail-price").innerText =
+        "$" + price.toFixed(2);
+
+    const image = document.getElementById("detail-image");
+
+    if (imageUrl) {
+        image.src = imageUrl;
+        image.style.display = "block";
+    } else {
+        image.style.display = "none";
+    }
+
+    document.getElementById("detail-add-btn").onclick = function () {
+        const spicy =
+            document.querySelector('input[name="spicy"]:checked').value;
+
+        addConfiguredItem(name, price, spicy);
+
+        closeItemModal();
+    };
+
+    document.getElementById("item-modal").style.display = "block";
+}
+
+
+function addConfiguredItem(name, price, spicy) {
+    const existingItem = cart.find(item =>
+        item.name === name &&
+        item.spicy === spicy
+    );
+
+    if (existingItem) {
+        existingItem.quantity++;
+    } else {
+        cart.push({
+            name: name,
+            price: price,
+            spicy: spicy,
+            quantity: 1
+        });
+    }
+
+    updateCart();
+}
+
+function closeItemModal() {document.getElementById("item-modal").style.display = "none";
+    }
+</script>
+
+<script>
+    const categoryButtons = document.querySelectorAll(".category-btn");
+    const menuItems = document.querySelectorAll(".menu-item");
+    const sectionTitle = document.getElementById("section-title");
+
+    categoryButtons.forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            categoryButtons.forEach(btn => {
+                btn.classList.remove("active");
+            });
+
+            this.classList.add("active");
+
+            const category = this.dataset.category;
+
+            sectionTitle.innerText = this.innerText.trim();
+
+            menuItems.forEach(item => {
+
+                if (category === "popular") {
+
+                    if (item.dataset.popular === "true") {
+                        item.style.display = "flex";
+                    } else {
+                        item.style.display = "none";
+                    }
+
+                } else {
+
+                    if (item.dataset.category === category) {
+                        item.style.display = "flex";
+                    } else {
+                        item.style.display = "none";
+                    }
+
+                }
+
+            });
+
+        });
+
+    });
+
+
+    // 页面第一次打开时，只显示 Popular
+    menuItems.forEach(item => {
+        if (item.dataset.popular !== "true") {
+            item.style.display = "none";
+        }
+    });
+</script>
+</body>
+</html>
