@@ -1,3 +1,4 @@
+from cloudinary.models import CloudinaryField
 from django.db import models
 
 
@@ -28,11 +29,12 @@ class MenuItem(models.Model):
         decimal_places=2
     )
 
-    image = models.ImageField(
-        upload_to='menu_images/',
+    image = CloudinaryField(
+        'image',
+        folder='grillking/menu',
         blank=True,
         null=True
-    )
+     )
 
     is_popular = models.BooleanField(default=False)
     is_sold_out = models.BooleanField(default=False)

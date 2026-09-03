@@ -1,5 +1,10 @@
 import os
 import dj_database_url
+import cloudinary
+
+cloudinary.config(
+    secure=True
+)
 
 """
 Django settings for grillking project.
@@ -46,10 +51,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
+    'cloudinary',
+       
     'ordering',
 ]
 
+cloudinary.config(
+    secure=True
+)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
