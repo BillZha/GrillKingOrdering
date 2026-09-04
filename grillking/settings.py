@@ -3,6 +3,9 @@ import dj_database_url
 import cloudinary
 
 cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
     secure=True
 )
 
@@ -56,10 +59,6 @@ INSTALLED_APPS = [
     'ordering',
 ]
 
-cloudinary.config(
-    cloudinary_url=os.environ.get("CLOUDINARY_URL"),
-    secure=True
-)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
