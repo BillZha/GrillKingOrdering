@@ -4,145 +4,180 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Grill King QR Codes</title>
+    <title>Grill King Table QR Codes</title>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
             margin: 0;
             padding: 30px;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            color: #111;
         }
-        
+
         h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 32px;
+        }
+
+        .print-area {
             text-align: center;
             margin-bottom: 30px;
         }
 
+        .print-btn {
+            border: none;
+            background: #111;
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
         .grid {
+            max-width: 1200px;
+            margin: auto;
+
             display: grid;
             grid-template-columns:
                 repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            max-width: 1200px;
-            margin: auto;
+
+            gap: 22px;
         }
 
         .table-card {
             background: white;
-            padding: 20px;
-            border-radius: 16px;
+            border-radius: 18px;
+            padding: 24px 18px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+
+            box-shadow:
+                0 4px 16px rgba(0,0,0,0.08);
         }
 
-        .table-card h2 {
-            margin-bottom: 15px;
+        .brand {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .table-number {
+            font-size: 27px;
+            font-weight: bold;
+            margin-bottom: 18px;
         }
 
         .table-card img {
             width: 180px;
             height: 180px;
+            display: block;
+            margin: auto;
         }
 
-        .url {
-            margin-top: 12px;
-            font-size: 12px;
+        .scan-text {
+            margin-top: 18px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .scan-subtext {
+            margin-top: 5px;
             color: #777;
-            word-break: break-all;
+            font-size: 13px;
         }
 
         @media print {
+
+            @page {
+                margin: 10mm;
+            }
+
             body {
                 background: white;
+                padding: 0;
+            }
+
+            h1,
+            .print-area {
+                display: none;
+            }
+
+            .grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12mm;
             }
 
             .table-card {
                 box-shadow: none;
-                border: 1px solid #ddd;
+                border: 1px solid #ccc;
+                border-radius: 12px;
+                padding: 12mm;
+
                 break-inside: avoid;
+                page-break-inside: avoid;
+            }
+
+            .table-card img {
+                width: 50mm;
+                height: 50mm;
             }
         }
-        .print-area {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.print-btn {
-    background: #111;
-    color: white;
-    border: none;
-    padding: 14px 24px;
-    border-radius: 10px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.print-btn:hover {
-    opacity: 0.85;
-}
-
-@media print {
-
-    .print-area {
-        display: none;
-    }
-
-    body {
-        padding: 0;
-        background: white;
-    }
-
-    .grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .table-card {
-        box-shadow: none;
-        border: 1px solid #ddd;
-        break-inside: avoid;
-        page-break-inside: avoid;
-    }
-}
     </style>
 </head>
 
 <body>
 
-<h1>GRILL KING · TABLE QR CODES</h1>
+    <h1>GRILL KING · TABLE QR CODES</h1>
 
-<div class="print-area">
-    <button onclick="window.print()" class="print-btn">
-        Print QR Codes
-    </button>
-</div>
+    <div class="print-area">
+        <button
+            class="print-btn"
+            onclick="window.print()">
+            Print QR Codes
+        </button>
+    </div>
 
-<div class="grid">
+    <div class="grid">
 
-    {% for table in tables %}
+        {% for table in tables %}
 
-        <div class="table-card">
+            <div class="table-card">
 
-            <h2>
-                Table {{ table.number|stringformat:"02d" }}
-            </h2>
+                <div class="brand">
+                    GRILL KING
+                </div>
 
-            <img
-                src="data:image/png;base64,{{ table.qr }}"
-                alt="Table {{ table.number }} QR Code"
-            >
+                <div class="table-number">
+                    Table {{ table.number|stringformat:"02d" }}
+                </div>
 
-            <div class="url">
-                {{ table.url }}
+                <img
+                    src="data:image/png;base64,{{ table.qr }}"
+                    alt="Table {{ table.number }} QR Code"
+                >
+
+                <div class="scan-text">
+                    Scan to Order
+                </div>
+
+                <div class="scan-subtext">
+                    Scan with your phone camera
+                </div>
+
             </div>
 
-        </div>
+        {% endfor %}
 
-    {% endfor %}
-
-</div>
+    </div>
 
 </body>
 </html>
