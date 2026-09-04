@@ -50,6 +50,20 @@ if cloud_name and api_key and api_secret:
         secure=True,
     )
 
+print(
+    "CLOUDINARY CHECK:",
+    "cloud_name =", os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    "api_key exists =", bool(os.environ.get("CLOUDINARY_API_KEY")),
+    "api_secret exists =", bool(os.environ.get("CLOUDINARY_API_SECRET")),
+)
+
+print(
+    "CLOUDINARY CONFIG:",
+    "cloud_name =", cloudinary.config().cloud_name,
+    "api_key exists =", bool(cloudinary.config().api_key),
+    "api_secret exists =", bool(cloudinary.config().api_secret),
+)
+
 
 # =========================================================
 # Applications
