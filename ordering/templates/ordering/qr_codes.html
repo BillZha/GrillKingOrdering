@@ -13,7 +13,7 @@
             margin: 0;
             padding: 30px;
         }
-
+        
         h1 {
             text-align: center;
             margin-bottom: 30px;
@@ -63,12 +63,61 @@
                 break-inside: avoid;
             }
         }
+        .print-area {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.print-btn {
+    background: #111;
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.print-btn:hover {
+    opacity: 0.85;
+}
+
+@media print {
+
+    .print-area {
+        display: none;
+    }
+
+    body {
+        padding: 0;
+        background: white;
+    }
+
+    .grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .table-card {
+        box-shadow: none;
+        border: 1px solid #ddd;
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+}
     </style>
 </head>
 
 <body>
 
 <h1>GRILL KING · TABLE QR CODES</h1>
+
+<div class="print-area">
+    <button onclick="window.print()" class="print-btn">
+        Print QR Codes
+    </button>
+</div>
 
 <div class="grid">
 

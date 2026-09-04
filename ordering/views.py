@@ -82,30 +82,33 @@ def place_order(request):
             'error': str(e)
         }, status=500)
 
+from django.conf import settings
+
+
 def qr_codes(request):
     tables = []
 
+    base_url = settings.PUBLIC_BASE_URL.rstrip("/")
+
     for table_number in range(1, 21):
 
-        url = request.build_absolute_uri(
-            f'/table/{table_number}/'
-        )
+        url = f"{base_url}/table/{table_number}/"
 
         qr = qrcode.make(url)
 
         buffer = BytesIO()
-        qr.save(buffer, format='PNG')
+        qr.save(buffer, format="PNG")
 
         image_base64 = base64.b64encode(
             buffer.getvalue()
-        ).decode('utf-8')
+        ).decode("utf-8")
 
         tables.append({
-            'number': table_number,
-            'url': url,
-            'qr': image_base64,
+            "number": table_number,
+            "url": url,
+            "qr": image_base64,
         })
 
-    return render(request, 'ordering/qr_codes.html', {
-        'tables': tables
+    return render(request, "ordering/qr_codes.html", {
+        "tables": tables
     })
