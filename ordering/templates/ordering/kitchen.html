@@ -91,9 +91,19 @@
             border-color: #ff9500;
         }
 
-        .order-card.ready {
+       .order-card.ready {
     border-color: #34c759;
     background: #eaffef;
+}
+
+.order-card.ready .order-header {
+    background: #34c759;
+    color: #111;
+}
+
+.order-card.ready .order-time,
+.order-card.ready .elapsed-time {
+    color: #111;
 }
 
 .order-card.ready .order-header {
@@ -193,6 +203,7 @@
     background: #111;
     color: white;
     font-size: 20px;
+    padding: 16px;
 }
 
         .empty-state {
