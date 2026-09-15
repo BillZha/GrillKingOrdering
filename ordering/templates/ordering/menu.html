@@ -341,6 +341,7 @@
 
 <body>
 
+    {% csrf_token %}
     <div class="header">
         <h1>GRILL KING</h1>
         <p>Scan · Order · Enjoy</p>
@@ -589,7 +590,9 @@
         method: "POST",
         headers: {
             "Content-Type": "application/json",
-            "X-CSRFToken": getCookie("csrftoken")
+            "X-CSRFToken": document.querySelector(
+                '[name=csrfmiddlewaretoken]'
+            ).value
         },
         body: JSON.stringify({
             table_number: {{ table_number }},

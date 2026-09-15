@@ -4,12 +4,14 @@ from io import BytesIO
 import qrcode
 
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.utils import timezone
 
 from .models import Category, MenuItem, Order, OrderItem
 
-
+@ensure_csrf_cookie
 def menu(request, table_number=0):
     categories = Category.objects.all()
 
@@ -111,4 +113,73 @@ def qr_codes(request):
 
     return render(request, "ordering/qr_codes.html", {
         "tables": tables
+    })
+
+def kitchen(request):
+    return render(request, "ordering/kitchen.html")
+
+
+def kitchen_orders(request):
+    orders = Order.objects.exclude(
+        status="completed"
+    ).prefetch_related("items").order_by("created_at")
+
+    data = []
+
+    for order in orders:
+        elapsed_minutes = max(
+            0,
+            int(
+                (timezone.now() - order.created_at).total_seconds() // 60
+            )
+        )
+
+        data.append({
+            "id": order.id,
+            "table_number": order.table_number,
+            "status": order.status,
+            "created_at": timezone.localtime(
+                order.created_at
+            ).strftime("%I:%M %p"),
+            "elapsed_minutes": elapsed_minutes,
+            "items": [
+                {
+                    "name": item.name,
+                    "quantity": item.quantity,
+                    "spicy": item.spicy,
+                }
+                for item in order.items.all()
+            ]
+        })
+
+    return JsonResponse({
+        "orders": data
+    })
+
+
+@require_POST
+def update_order_status(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+
+    new_status = request.POST.get("status")
+
+    allowed_statuses = [
+        "new",
+        "preparing",
+        "ready",
+        "completed",
+    ]
+
+    if new_status not in allowed_statuses:
+        return JsonResponse({
+            "success": False,
+            "error": "Invalid status"
+        }, status=400)
+
+    order.status = new_status
+    order.save(update_fields=["status"])
+
+    return JsonResponse({
+        "success": True,
+        "status": order.status
     })

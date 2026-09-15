@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Grill King Kitchen</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            padding: 18px 24px;
+            background: #000;
+            border-bottom: 1px solid #333;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .connection {
+            font-size: 15px;
+            color: #bbb;
+        }
+
+        .orders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 18px;
+            padding: 20px;
+        }
+
+        .order-card {
+            background: white;
+            color: #111;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 4px solid #ddd;
+        }
+
+        .order-card.new {
+            border-color: #ff3b30;
+        }
+
+        .order-card.preparing {
+            border-color: #ff9500;
+        }
+
+        .order-card.ready {
+            border-color: #34c759;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px;
+            background: #f2f2f2;
+        }
+
+        .table-number {
+            font-size: 30px;
+            font-weight: bold;
+        }
+
+        .order-number {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .order-time {
+            font-size: 16px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .items {
+            padding: 18px;
+        }
+
+        .item {
+            padding: 12px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .item-name {
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .item-qty {
+            font-size: 22px;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .spicy {
+            margin-top: 6px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .spicy.yes {
+            color: #d70000;
+        }
+
+        .spicy.no {
+            color: #555;
+        }
+
+        .actions {
+            padding: 16px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .actions button {
+            flex: 1;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .accept-btn {
+            background: #ff9500;
+        }
+
+        .ready-btn {
+            background: #34c759;
+        }
+
+        .complete-btn {
+            background: #111;
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            margin-top: 120px;
+            color: #aaa;
+            font-size: 30px;
+        }
+
+        .top-actions {
+             display: flex;
+             align-items: center;
+             gap: 15px;
+        }
+
+        #sound-btn {
+             border: none;
+             background: #34c759;
+             color: #111;
+             padding: 10px 16px;
+             border-radius: 8px;
+             font-weight: bold;
+             cursor: pointer;
+        }
+
+         .order-card.warning {
+            box-shadow: 0 0 0 5px #ffd60a;
+        }
+
+         .order-card.overdue {
+            box-shadow: 0 0 0 6px #ff3b30;
+        }
+
+         .elapsed-time {
+             font-size: 20px;
+             font-weight: bold;
+             margin-top: 6px;
+        }
+
+         .elapsed-time.warning {
+             color: #b88600;
+        }
+
+         .elapsed-time.overdue {
+             color: #d70000;
+        }
+
+
+        @media (min-width: 1600px) {
+            .orders-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+{% csrf_token %}
+<div class="top-actions">
+    <span class="connection">Live</span>
+
+    <button id="sound-btn" onclick="enableSound()">
+        Enable Sound
+    </button>
+</div>
+
+<div id="orders-grid" class="orders-grid"></div>
+
+<div id="empty-state" class="empty-state" style="display:none;">
+    No active orders
+</div>
+
+<script>
+    let knownOrderIds = new Set();
+    let firstLoad = true;
+    let latestOrders = [];
+    async function loadOrders() {
+        try {
+            const response = await fetch("/kitchen/orders/");
+            const data = await response.json();
+
+            const orders = data.orders;
+            latestOrders = orders;
+
+            if (!firstLoad) {
+                orders.forEach(order => {
+                    if (!knownOrderIds.has(order.id)) {
+                        playNewOrderSound();
+                    }
+                });
+            }
+
+            knownOrderIds = new Set(
+                orders.map(order => order.id)
+            );
+
+            renderOrders(orders);
+
+            firstLoad = false;
+
+        } catch (error) {
+            console.error("Kitchen refresh failed:", error);
+        }
+    }
+
+
+    function renderOrders(orders) {
+        const grid =
+            document.getElementById("orders-grid");
+
+        const empty =
+            document.getElementById("empty-state");
+
+        grid.innerHTML = "";
+
+        if (orders.length === 0) {
+            empty.style.display = "block";
+            return;
+        }
+
+        empty.style.display = "none";
+
+        orders.forEach(order => {
+            const card = document.createElement("div");
+            const elapsedMinutes = order.elapsed_minutes;
+
+            let timeClass = "";
+
+            if (elapsedMinutes >= 15) {
+                timeClass = "overdue";
+            } else if (elapsedMinutes >= 10) {
+                timeClass = "warning";
+            }
+
+            card.className =
+                "order-card " + order.status + " " + timeClass;
+
+            const itemsHtml = order.items.map(item => {
+                const isSpicy =
+                    item.spicy === "Spicy";
+
+                return `
+                    <div class="item">
+                        <div class="item-name">
+                            <span class="item-qty">
+                                ${item.quantity} ×
+                            </span>
+
+                            ${item.name}
+                        </div>
+
+                        ${
+                            item.spicy
+                            ? `
+                                <div class="spicy ${isSpicy ? "yes" : "no"}">
+                                    ${item.spicy}
+                                </div>
+                            `
+                            : ""
+                        }
+                    </div>
+                `;
+            }).join("");
+
+            let buttons = "";
+
+            if (order.status === "new") {
+                buttons = `
+                    <button
+                        class="accept-btn"
+                        onclick="changeStatus(${order.id}, 'preparing')">
+                        ACCEPT
+                    </button>
+                `;
+            }
+
+            if (order.status === "preparing") {
+                buttons = `
+                    <button
+                        class="ready-btn"
+                        onclick="changeStatus(${order.id}, 'ready')">
+                        READY
+                    </button>
+                `;
+            }
+
+            if (order.status === "ready") {
+                buttons = `
+                    <button
+                        class="complete-btn"
+                        onclick="changeStatus(${order.id}, 'completed')">
+                        COMPLETE
+                    </button>
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="order-header">
+                    <div>
+                        <div class="table-number">
+                            TABLE ${String(order.table_number).padStart(2, "0")}
+                        </div>
+
+                        <div class="order-time">
+                            ${order.created_at}
+                        </div>
+                        <div class="elapsed-time ${timeClass}">
+                            ${elapsedMinutes} MIN
+                        </div>
+                    </div>
+
+                    <div class="order-number">
+                        #${order.id}
+                    </div>
+                </div>
+
+                <div class="items">
+                    ${itemsHtml}
+                </div>
+
+                <div class="actions">
+                    ${buttons}
+                </div>
+            `;
+
+            grid.appendChild(card);
+        });
+    }
+
+
+    async function changeStatus(orderId, status) {
+        const formData = new FormData();
+        formData.append("status", status);
+
+        await fetch(
+            `/kitchen/order/${orderId}/status/`,
+            {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": document.querySelector(
+                        '[name=csrfmiddlewaretoken]'
+                    ).value
+                },
+                body: formData
+            }
+        );
+
+        loadOrders();
+    }
+
+
+    function playNewOrderSound() {
+        const audio = new Audio(
+            "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+        );
+
+        audio.play().catch(() => {
+            console.log("Browser blocked autoplay.");
+        });
+    }
+
+
+    function getCookie(name) {
+        let cookieValue = null;
+
+        if (document.cookie && document.cookie !== "") {
+            const cookies =
+                document.cookie.split(";");
+
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue =
+                        decodeURIComponent(
+                            cookie.substring(name.length + 1)
+                        );
+
+                    break;
+                }
+            }
+        }
+
+        return cookieValue;
+    }
+
+
+    loadOrders();
+
+    setInterval(
+        loadOrders,
+        3000
+    );
+</script>
+
+</body>
+</html>
