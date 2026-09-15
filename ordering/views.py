@@ -146,10 +146,10 @@ def kitchen_login(request):
 
 def kitchen_orders(request):
     if not request.session.get("kitchen_authorized"):
-    return JsonResponse(
-        {"error": "Unauthorized"},
-        status=403
-    )
+        return JsonResponse(
+             {"error": "Unauthorized"},
+              status=403
+        )
 
     orders = Order.objects.exclude(
         status="completed"
@@ -195,15 +195,14 @@ def kitchen_orders(request):
         "orders": data
     })
 
-
 @require_POST
 def update_order_status(request, order_id):
-
     if not request.session.get("kitchen_authorized"):
-    return JsonResponse(
-        {"error": "Unauthorized"},
-        status=403
-    )
+        return JsonResponse(
+            {"error": "Unauthorized"},
+            status=403
+        )
+
     order = get_object_or_404(Order, id=order_id)
 
     new_status = request.POST.get("status")
@@ -216,10 +215,13 @@ def update_order_status(request, order_id):
     ]
 
     if new_status not in allowed_statuses:
-        return JsonResponse({
-            "success": False,
-            "error": "Invalid status"
-        }, status=400)
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Invalid status"
+            },
+            status=400
+        )
 
     order.status = new_status
     order.save(update_fields=["status"])
