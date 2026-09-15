@@ -38,6 +38,31 @@
             font-size: 28px;
         }
 
+        .subtitle {
+    margin-top: 4px;
+    font-size: 13px;
+    color: #888;
+}
+
+.live-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #34c759;
+    box-shadow: 0 0 10px #34c759;
+}
+
+#fullscreen-btn {
+    border: none;
+    background: #2c2c2c;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+
         .connection {
             font-size: 15px;
             color: #bbb;
@@ -67,8 +92,20 @@
         }
 
         .order-card.ready {
-            border-color: #34c759;
-        }
+    border-color: #34c759;
+    background: #eaffef;
+}
+
+.order-card.ready .order-header {
+    background: #34c759;
+    color: #111;
+}
+
+.order-card.ready .order-time,
+.order-card.ready .elapsed-time {
+    color: #111;
+}
+
 
         .order-header {
             display: flex;
@@ -153,9 +190,10 @@
         }
 
         .complete-btn {
-            background: #111;
-            color: white;
-        }
+    background: #111;
+    color: white;
+    font-size: 20px;
+}
 
         .empty-state {
             text-align: center;
@@ -229,12 +267,28 @@
 </audio>
     
 {% csrf_token %}
-<div class="top-actions">
-    <span class="connection">Live</span>
 
-    <button id="sound-btn" onclick="enableSound()">
-        Enable Sound
-    </button>
+<div class="topbar">
+    <div>
+        <h1>GRILL KING · KITCHEN</h1>
+
+        <div class="subtitle">
+            Kitchen Display System
+        </div>
+    </div>
+
+    <div class="top-actions">
+        <span class="live-dot"></span>
+        <span class="connection">LIVE</span>
+
+        <button id="sound-btn" onclick="enableSound()">
+            Enable Sound
+        </button>
+
+        <button id="fullscreen-btn" onclick="toggleFullscreen()">
+            Full Screen
+        </button>
+    </div>
 </div>
 
 <div id="orders-grid" class="orders-grid"></div>
@@ -274,6 +328,13 @@
         }
     }
 
+    function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+    } else {
+        document.exitFullscreen();
+    }
+}
 
     function renderOrders(orders) {
         const grid =
