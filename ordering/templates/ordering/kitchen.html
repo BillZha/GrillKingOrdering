@@ -230,8 +230,11 @@
     let knownOrderIds = new Set();
     let firstLoad = true;
     let latestOrders = [];
+
     let soundEnabled = false;
-    let reminderTimer = null;
+    let audioContext = null;
+    let alarmTimer = null;
+    let alarmRunning = false;
 
     async function loadOrders() {
         try {
@@ -240,14 +243,8 @@
 
             const orders = data.orders;
             latestOrders = orders;
+            updateAlarm();
 
-            if (!firstLoad) {
-                orders.forEach(order => {
-                    if (!knownOrderIds.has(order.id)) {
-                        playNewOrderSound();
-                    }
-                });
-            }
 
             knownOrderIds = new Set(
                 orders.map(order => order.id)
@@ -410,35 +407,87 @@
     function enableSound() {
     soundEnabled = true;
 
+    audioContext = new (
+        window.AudioContext ||
+        window.webkitAudioContext
+    )();
+
+    if (audioContext.state === "suspended") {
+        audioContext.resume();
+    }
+
     const button = document.getElementById("sound-btn");
+
     button.innerText = "Sound Enabled";
     button.disabled = true;
 
-    playNewOrderSound();
-
-    if (!reminderTimer) {
-        reminderTimer = setInterval(() => {
-            const hasNewOrders = latestOrders.some(
-                order => order.status === "new"
-            );
-
-            if (soundEnabled && hasNewOrders) {
-                playNewOrderSound();
-            }
-        }, 8000);
-    }
+    // 点按钮时测试响一声
+    beep();
 }
 
-    function playNewOrderSound() {
-        const audio = new Audio(
-            "https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
-        );
 
-        audio.play().catch(() => {
-            console.log("Browser blocked autoplay.");
-        });
+    function beep() {
+    if (!soundEnabled || !audioContext) {
+        return;
     }
 
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+
+    oscillator.type = "square";
+    oscillator.frequency.value = 900;
+
+    gain.gain.setValueAtTime(
+        0.5,
+        audioContext.currentTime
+    );
+
+    oscillator.start();
+
+    oscillator.stop(
+        audioContext.currentTime + 0.6
+    );
+}
+
+
+function startAlarm() {
+    if (!soundEnabled || alarmRunning) {
+        return;
+    }
+
+    alarmRunning = true;
+
+    beep();
+
+    alarmTimer = setInterval(() => {
+        beep();
+    }, 1200);
+}
+
+
+function stopAlarm() {
+    if (alarmTimer) {
+        clearInterval(alarmTimer);
+        alarmTimer = null;
+    }
+
+    alarmRunning = false;
+}
+
+    function updateAlarm() {
+    const hasNewOrders = latestOrders.some(
+        order => order.status === "new"
+    );
+
+    if (hasNewOrders) {
+        startAlarm();
+    } else {
+        stopAlarm();
+    }
+}
 
     function getCookie(name) {
         let cookieValue = null;
