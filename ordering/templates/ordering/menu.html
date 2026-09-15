@@ -574,88 +574,97 @@
     let cart = [];
 
     function placeOrder() {
+
     if (cart.length === 0) {
         alert("Your cart is empty.");
         return;
     }
-    function closeSuccessModal() {
-    document.getElementById("success-modal").style.display = "none";
-}
 
     const button = document.getElementById("place-order-btn");
 
-    button.disabled = true;
-    button.innerText = "Placing Order...";
+    if (button) {
+        button.disabled = true;
+        button.innerText = "Placing Order...";
+    }
 
     fetch("/place-order/", {
-    method: "POST",
+        method: "POST",
 
-    headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": document.querySelector(
-            '[name=csrfmiddlewaretoken]'
-        ).value
-    },
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": document.querySelector(
+                '[name=csrfmiddlewaretoken]'
+            ).value
+        },
 
-    body: JSON.stringify({
-        table_number: {{ table_number }},
-        cart: cart
+        body: JSON.stringify({
+            table_number: {{ table_number }},
+            cart: cart
+        })
     })
-})
 
-.then(response => response.json())
+    .then(response => response.json())
 
-.then(data => {
+    .then(data => {
 
-    if (data.success) {
+        if (data.success) {
 
-        // 清空购物车
-        cart = [];
+            cart = [];
 
-        updateCart();
-        renderCart();
-        closeCart();
+            updateCart();
+            renderCart();
+            closeCart();
 
-        // 更新成功弹窗内容
-        document.getElementById(
-            "success-order-number"
-        ).innerText =
-            "Order #" + data.order_id;
+            const orderNumber =
+                document.getElementById("success-order-number");
 
-        document.getElementById(
-            "success-table-number"
-        ).innerText =
-            "Table " +
-            String({{ table_number }}).padStart(2, "0");
+            const tableNumber =
+                document.getElementById("success-table-number");
 
-        // 显示成功弹窗
-        document.getElementById(
-            "success-modal"
-        ).style.display = "block";
+            const successModal =
+                document.getElementById("success-modal");
 
-    } else {
+            if (orderNumber) {
+                orderNumber.innerText =
+                    "Order #" + data.order_id;
+            }
+
+            if (tableNumber) {
+                tableNumber.innerText =
+                    "Table " +
+                    String({{ table_number }}).padStart(2, "0");
+            }
+
+            if (successModal) {
+                successModal.style.display = "block";
+            }
+
+        } else {
+
+            alert(
+                data.error ||
+                "Unable to place order."
+            );
+        }
+    })
+
+    .catch(error => {
+
+        console.error("Place order error:", error);
 
         alert(
-            data.error ||
             "Unable to place order."
         );
-    }
-})
+    })
 
-.catch(error => {
+    .finally(() => {
 
-    console.error("Place order error:", error);
-
-    alert(
-        "Unable to place order."
-    );
-})
-
-.finally(() => {
-
-    button.disabled = false;
-    button.innerText = "Place Order";
-});
+        if (button) {
+            button.disabled = false;
+            button.innerText = "Place Order";
+        }
+    });
+}
 
 
     function getCookie(name) {
@@ -712,6 +721,15 @@
         updateCart();
     }
 
+    function closeSuccessModal() {
+    const modal = document.getElementById("success-modal");
+
+    if (modal) {
+        modal.style.display = "none";
+    }
+
+    document.body.style.overflow = "auto";
+}
 
     function decreaseItem(name, spicy) {
     const item = cart.find(item =>
