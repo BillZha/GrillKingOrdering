@@ -8,6 +8,10 @@ import os
 import dj_database_url
 import cloudinary
 
+KITCHEN_PIN = os.environ.get(
+    "KITCHEN_PIN",
+    "1234"
+)
 
 # =========================================================
 # Base directory

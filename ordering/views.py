@@ -10,6 +10,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
 
 from .models import Category, MenuItem, Order, OrderItem
+from django.conf import settings
+from django.shortcuts import redirect
 
 @ensure_csrf_cookie
 def menu(request, table_number=0):
@@ -116,10 +118,39 @@ def qr_codes(request):
     })
 
 def kitchen(request):
+    if not request.session.get("kitchen_authorized"):
+        return redirect("kitchen_login")
+
     return render(request, "ordering/kitchen.html")
+
+def kitchen_login(request):
+    error = None
+
+    if request.method == "POST":
+        pin = request.POST.get("pin", "")
+
+        if pin == settings.KITCHEN_PIN:
+            request.session["kitchen_authorized"] = True
+            return redirect("kitchen")
+
+        error = "Incorrect PIN"
+
+    return render(
+        request,
+        "ordering/kitchen_login.html",
+        {
+            "error": error
+        }
+    )
 
 
 def kitchen_orders(request):
+    if not request.session.get("kitchen_authorized"):
+    return JsonResponse(
+        {"error": "Unauthorized"},
+        status=403
+    )
+
     orders = Order.objects.exclude(
         status="completed"
     ).prefetch_related("items").order_by("created_at")
@@ -167,6 +198,12 @@ def kitchen_orders(request):
 
 @require_POST
 def update_order_status(request, order_id):
+
+    if not request.session.get("kitchen_authorized"):
+    return JsonResponse(
+        {"error": "Unauthorized"},
+        status=403
+    )
     order = get_object_or_404(Order, id=order_id)
 
     new_status = request.POST.get("status")
