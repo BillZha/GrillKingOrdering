@@ -545,9 +545,10 @@
         </div>
 
         <button
+            type="button"
             class="detail-add-btn"
             onclick="closeSuccessModal()">
-            Done
+            Continue Ordering
         </button>
 
     </div>
@@ -587,47 +588,76 @@
     button.innerText = "Placing Order...";
 
     fetch("/place-order/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": document.querySelector(
-                '[name=csrfmiddlewaretoken]'
-            ).value
-        },
-        body: JSON.stringify({
-            table_number: {{ table_number }},
-            cart: cart
-        })
+    method: "POST",
+
+    headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector(
+            '[name=csrfmiddlewaretoken]'
+        ).value
+    },
+
+    body: JSON.stringify({
+        table_number: {{ table_number }},
+        cart: cart
     })
+})
 
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
+.then(response => response.json())
 
-    cart = [];
-    updateCart();
-    closeCart();
+.then(data => {
 
-    document.getElementById("success-order-number").innerText =
-        "Order #" + data.order_id;
+    if (data.success) {
 
-    document.getElementById("success-table-number").innerText =
-        "Table " + String({{ table_number }}).padStart(2, "0");
+        // 清空购物车
+        cart = [];
 
-    document.getElementById("success-modal").style.display = "block";
-        } else {
-            alert(data.error || "Unable to place order.");
-        }
-    })
-    .catch(error => {
-        console.error(error);
-        alert("Unable to place order.");
-    })
-    .finally(() => {
-        button.disabled = false;
-        button.innerText = "Place Order";
-    });
-}
+        updateCart();
+        renderCart();
+        closeCart();
+
+        // 更新成功弹窗内容
+        document.getElementById(
+            "success-order-number"
+        ).innerText =
+            "Order #" + data.order_id;
+
+        document.getElementById(
+            "success-table-number"
+        ).innerText =
+            "Table " +
+            String({{ table_number }}).padStart(2, "0");
+
+        // 显示成功弹窗
+        document.getElementById(
+            "success-modal"
+        ).style.display = "block";
+
+    } else {
+
+        alert(
+            data.error ||
+            "Unable to place order."
+        );
+    }
+})
+
+.catch(error => {
+
+    console.error("Place order error:", error);
+
+    alert(
+        "Unable to place order."
+    );
+})
+
+.finally(() => {
+
+    button.disabled = false;
+    button.innerText = "Place Order";
+});
+
+
     function getCookie(name) {
     let cookieValue = null;
 
