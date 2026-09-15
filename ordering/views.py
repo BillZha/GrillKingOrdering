@@ -134,6 +134,13 @@ def kitchen_orders(request):
             )
         )
 
+        is_addon = Order.objects.filter(
+             table_number=order.table_number,
+             created_at__lt=order.created_at
+        ).exclude(
+             status="completed"
+        ).exists()
+
         data.append({
             "id": order.id,
             "table_number": order.table_number,
@@ -142,6 +149,7 @@ def kitchen_orders(request):
                 order.created_at
             ).strftime("%I:%M %p"),
             "elapsed_minutes": elapsed_minutes,
+            "is_addon": is_addon,
             "items": [
                 {
                     "name": item.name,
