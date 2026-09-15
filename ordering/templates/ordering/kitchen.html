@@ -410,59 +410,61 @@
     function enableSound() {
     soundEnabled = true;
 
-    audioContext = new (
-        window.AudioContext ||
-        window.webkitAudioContext
-    )();
-
-    if (audioContext.state === "suspended") {
-        audioContext.resume();
-    }
-
     const button = document.getElementById("sound-btn");
-
-    button.innerText = "Sound Enabled";
-    button.disabled = true;
-
-    // 点按钮时测试响一声
-    beep();
-}
-
-
-    function enableSound() {
-    soundEnabled = true;
-
-    const button = document.getElementById("sound-btn");
-    button.innerText = "Sound Enabled";
-    button.disabled = true;
-
     const audio = document.getElementById("kitchen-alarm");
+
+    button.innerText = "Sound Enabled";
+    button.disabled = true;
+
     audio.volume = 1.0;
 
-    audio.play()
-        .then(() => {
-            audio.pause();
-            audio.currentTime = 0;
-        })
-        .catch(error => {
-            console.log("Audio unlock failed:", error);
-        });
+    // 如果当前已经有 NEW 订单，
+    // 用户点击按钮的这一刻直接开始播放
+    const hasNewOrders = latestOrders.some(
+        order => order.status === "new"
+    );
+
+    if (hasNewOrders) {
+        startAlarm();
+    } else {
+        // 没有新单时，只短暂播放一下来解锁浏览器音频
+        audio.play()
+            .then(() => {
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, 500);
+            })
+            .catch(error => {
+                console.log("Audio unlock failed:", error);
+            });
+    }
 }
 
 
 function startAlarm() {
-    if (!soundEnabled || alarmRunning) {
+    if (!soundEnabled) {
         return;
     }
 
     const audio = document.getElementById("kitchen-alarm");
 
-    alarmRunning = true;
+    if (!audio.paused) {
+        return;
+    }
+
+    audio.loop = true;
+    audio.volume = 1.0;
     audio.currentTime = 0;
 
-    audio.play().catch(error => {
-        console.log("Alarm blocked:", error);
-    });
+    audio.play()
+        .then(() => {
+            alarmRunning = true;
+            console.log("Kitchen alarm started");
+        })
+        .catch(error => {
+            console.error("Kitchen alarm failed:", error);
+        });
 }
 
 
@@ -473,34 +475,16 @@ function stopAlarm() {
     audio.currentTime = 0;
 
     alarmRunning = false;
+
+    console.log("Kitchen alarm stopped");
 }
 
 
-function startAlarm() {
-    if (!soundEnabled || alarmRunning) {
+function updateAlarm() {
+    if (!soundEnabled) {
         return;
     }
 
-    alarmRunning = true;
-
-    beep();
-
-    alarmTimer = setInterval(() => {
-        beep();
-    }, 1200);
-}
-
-
-function stopAlarm() {
-    if (alarmTimer) {
-        clearInterval(alarmTimer);
-        alarmTimer = null;
-    }
-
-    alarmRunning = false;
-}
-
-    function updateAlarm() {
     const hasNewOrders = latestOrders.some(
         order => order.status === "new"
     );
