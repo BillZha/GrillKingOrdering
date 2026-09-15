@@ -230,6 +230,9 @@
     let knownOrderIds = new Set();
     let firstLoad = true;
     let latestOrders = [];
+    let soundEnabled = false;
+    let reminderTimer = null;
+
     async function loadOrders() {
         try {
             const response = await fetch("/kitchen/orders/");
@@ -404,6 +407,27 @@
         loadOrders();
     }
 
+    function enableSound() {
+    soundEnabled = true;
+
+    const button = document.getElementById("sound-btn");
+    button.innerText = "Sound Enabled";
+    button.disabled = true;
+
+    playNewOrderSound();
+
+    if (!reminderTimer) {
+        reminderTimer = setInterval(() => {
+            const hasNewOrders = latestOrders.some(
+                order => order.status === "new"
+            );
+
+            if (soundEnabled && hasNewOrders) {
+                playNewOrderSound();
+            }
+        }, 8000);
+    }
+}
 
     function playNewOrderSound() {
         const audio = new Audio(
