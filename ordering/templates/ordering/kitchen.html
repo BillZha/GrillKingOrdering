@@ -365,22 +365,24 @@
                 `;
             }
 
+
+            const addonHtml = order.is_addon
+                ? '<div class="addon-badge">ADD-ON</div>'
+                : '';
+
             card.innerHTML = `
-    <div class="order-header">
-        <div>
-            <div class="table-number">
-                TABLE ${String(order.table_number).padStart(2, "0")}
-            </div>
+                <div class="order-header">
+                    <div>
+                        <div class="table-number">
+                             TABLE ${String(order.table_number).padStart(2, "0")}
+                        </div>
+
+                        ${addonHtml}
 
             <div class="order-time">
                 ${order.created_at}
             </div>
 
-            ${order.is_addon ? `
-                <div class="addon-badge">
-                    ADD-ON
-                </div>
-            ` : ""}
 
             <div class="elapsed-time ${timeClass}">
                 ${elapsedMinutes} MIN
