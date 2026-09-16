@@ -17,19 +17,22 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
     list_display = (
-        'name',
-        'category',
-        'price',
-        'is_popular',
-        'is_sold_out',
-        'is_active',
+        "name",
+        "category",
+        "price",
+        "is_popular",
+        "is_sold_out",
+        "is_active",
+        "allow_spicy",
+        "sort_order",
     )
 
     list_filter = (
-        'category',
-        'is_popular',
-        'is_sold_out',
-        'is_active',
+    "category",
+    "is_popular",
+    "is_sold_out",
+    "is_active",
+    "allow_spicy",
     )
 
     search_fields = (

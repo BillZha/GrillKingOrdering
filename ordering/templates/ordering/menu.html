@@ -474,7 +474,7 @@
     $0.00
 </div>
 
-<div class="option-section">
+<div class="option-section" id="spicy-options">
     <h3>Spicy Level</h3>
 
     <label>
@@ -857,6 +857,14 @@ function openItemModal(element) {
     const description = element.dataset.description;
     const price = Number(element.dataset.price);
     const imageUrl = element.dataset.image;
+    const allowSpicy = element.dataset.allowSpicy === "true";
+    const spicyOptions = document.getElementById("spicy-options");
+
+    if (allowSpicy) {
+         spicyOptions.style.display = "block";
+    } else {
+         spicyOptions.style.display = "none";
+    }
 
     const defaultSpicy = document.querySelector(
         'input[name="spicy"][value="Not Spicy"]'
@@ -881,8 +889,9 @@ function openItemModal(element) {
     }
 
     document.getElementById("detail-add-btn").onclick = function () {
-        const spicy =
-            document.querySelector('input[name="spicy"]:checked').value;
+        const spicy = allowSpicy
+            ? document.querySelector('input[name="spicy"]:checked').value
+            : "Not Spicy";
 
         addConfiguredItem(name, price, spicy);
 

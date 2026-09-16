@@ -40,6 +40,8 @@ class MenuItem(models.Model):
     is_sold_out = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
+    allow_spicy = models.BooleanField(default=False)
+
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:
