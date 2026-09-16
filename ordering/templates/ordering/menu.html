@@ -352,9 +352,7 @@
 </div>
 
     <div class="categories">
-    <button class="category-btn active" data-category="popular">
-        Popular
-    </button>
+   
 
     {% for category in categories %}
         {% if category.name != "Popular" %}
@@ -368,20 +366,21 @@
 
     <div class="menu-container">
 
-        <h2 class="section-title" id="section-title">Popular</h2>
+        <h2 id="section-title">SIGNATURES</h2>
 
 <div id="menu-items">
 
     {% for item in items %}
 
 <div class="menu-item"
-     data-category="{{ item.category.id }}"
-     data-popular="{{ item.is_popular|yesno:'true,false' }}"
-     data-name="{{ item.name }}"
-     data-description="{{ item.description }}"
-     data-price="{{ item.price }}"
-     data-image="{% if item.image %}{{ item.image.url }}{% endif %}"
-     onclick="openItemModal(this)">
+    data-category="{{ item.category.id }}"
+    data-popular="{{ item.is_popular|yesno:'true,false' }}"
+    data-name="{{ item.name }}"
+    data-description="{{ item.description }}"
+    data-price="{{ item.price }}"
+    data-image="{% if item.image %}{{ item.image.url }}{% endif %}"
+    data-allow-spicy="{{ item.allow_spicy|yesno:'true,false' }}"
+    onclick="openItemModal(this)">
 
     <div class="item-content">
 
@@ -947,22 +946,10 @@ function closeItemModal() {document.getElementById("item-modal").style.display =
 
             menuItems.forEach(item => {
 
-                if (category === "popular") {
-
-                    if (item.dataset.popular === "true") {
-                        item.style.display = "flex";
-                    } else {
-                        item.style.display = "none";
-                    }
-
+                if (item.dataset.category === category) {
+                    item.style.display = "flex";
                 } else {
-
-                    if (item.dataset.category === category) {
-                        item.style.display = "flex";
-                    } else {
-                        item.style.display = "none";
-                    }
-
+                    item.style.display = "none";
                 }
 
             });
@@ -972,12 +959,10 @@ function closeItemModal() {document.getElementById("item-modal").style.display =
     });
 
 
-    // 页面第一次打开时，只显示 Popular
-    menuItems.forEach(item => {
-        if (item.dataset.popular !== "true") {
-            item.style.display = "none";
-        }
-    });
+    // 页面第一次打开时，默认显示第一个分类
+     if (categoryButtons.length > 0) {
+         categoryButtons[0].click();
+     }
 </script>
 </body>
 </html>
