@@ -380,6 +380,9 @@
     data-price="{{ item.price }}"
     data-image="{% if item.image %}{{ item.image.url }}{% endif %}"
     data-allow-spicy="{{ item.allow_spicy|yesno:'true,false' }}"
+    data-allow-size="{{ item.allow_size|yesno:'true,false' }}"
+    data-small-price="{{ item.small_price|default_if_none:'' }}"
+    data-large-price="{{ item.large_price|default_if_none:'' }}"
     onclick="openItemModal(this)">
 
     <div class="item-content">
@@ -471,6 +474,31 @@
 
         <div id="detail-price" class="detail-price">
     $0.00
+</div>
+
+<div class="option-section" id="size-options" style="display: none;">
+    <h3>Size</h3>
+
+    <label>
+        <input
+            type="radio"
+            name="size"
+            value="Small"
+            id="size-small"
+            checked
+        >
+        <span id="small-size-label">Small</span>
+    </label>
+
+    <label>
+        <input
+            type="radio"
+            name="size"
+            value="Large"
+            id="size-large"
+        >
+        <span id="large-size-label">Large</span>
+    </label>
 </div>
 
 <div class="option-section" id="spicy-options">
@@ -859,11 +887,35 @@ function openItemModal(element) {
     const allowSpicy = element.dataset.allowSpicy === "true";
     const spicyOptions = document.getElementById("spicy-options");
 
-    if (allowSpicy) {
-         spicyOptions.style.display = "block";
+    const allowSize = element.dataset.allowSize === "true";
+    const sizeOptions = document.getElementById("size-options");
+
+    const smallPrice = Number(element.dataset.smallPrice);
+    const largePrice = Number(element.dataset.largePrice);
+
+    const smallRadio = document.getElementById("size-small");
+    const largeRadio = document.getElementById("size-large");
+
+    if (allowSize) {
+        sizeOptions.style.display = "block";
+
+        document.getElementById("small-size-label").innerText =
+            `Small - $${smallPrice.toFixed(2)}`;
+
+        document.getElementById("large-size-label").innerText =
+            `Large - $${largePrice.toFixed(2)}`;
+
+        smallRadio.checked = true;
+
     } else {
-         spicyOptions.style.display = "none";
+        sizeOptions.style.display = "none";
     }
+
+    if (allowSpicy) {
+            spicyOptions.style.display = "block";
+        } else {
+            spicyOptions.style.display = "none";
+        }
 
     const defaultSpicy = document.querySelector(
         'input[name="spicy"][value="Not Spicy"]'
@@ -876,7 +928,19 @@ function openItemModal(element) {
     document.getElementById("detail-name").innerText = name;
     document.getElementById("detail-description").innerText = description || "";
     document.getElementById("detail-price").innerText =
-        "$" + price.toFixed(2);
+    "$" + (allowSize ? smallPrice : price).toFixed(2);
+
+    if (allowSize) {
+    smallRadio.onchange = function () {
+        document.getElementById("detail-price").innerText =
+            "$" + smallPrice.toFixed(2);
+    };
+
+    largeRadio.onchange = function () {
+        document.getElementById("detail-price").innerText =
+            "$" + largePrice.toFixed(2);
+    };
+}
 
     const image = document.getElementById("detail-image");
 
@@ -887,12 +951,35 @@ function openItemModal(element) {
         image.style.display = "none";
     }
 
-    document.getElementById("detail-add-btn").onclick = function () {
-        const spicy = allowSpicy
-            ? document.querySelector('input[name="spicy"]:checked').value
-            : "Not Spicy";
+    const spicy = allowSpicy
+    ? document.querySelector('input[name="spicy"]:checked').value
+    : "Not Spicy";
 
-        addConfiguredItem(name, price, spicy);
+let selectedPrice = price;
+let selectedSize = "";
+
+if (allowSize) {
+    selectedSize = document.querySelector(
+        'input[name="size"]:checked'
+    ).value;
+
+    selectedPrice =
+        selectedSize === "Large"
+            ? largePrice
+            : smallPrice;
+}
+
+const orderName = allowSize
+    ? `${name} (${selectedSize})`
+    : name;
+
+addConfiguredItem(
+    orderName,
+    selectedPrice,
+    spicy
+);
+
+closeItemModal();
 
         closeItemModal();
     };

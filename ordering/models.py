@@ -42,6 +42,22 @@ class MenuItem(models.Model):
 
     allow_spicy = models.BooleanField(default=False)
 
+    allow_size = models.BooleanField(default=False)
+
+    small_price = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
+    large_price = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
+
     sort_order = models.PositiveIntegerField(default=0)
 
     class Meta:

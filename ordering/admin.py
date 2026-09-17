@@ -24,6 +24,9 @@ class MenuItemAdmin(admin.ModelAdmin):
         "is_sold_out",
         "is_active",
         "allow_spicy",
+        "allow_size",
+        "small_price",
+        "large_price",
         "sort_order",
     )
 
@@ -33,6 +36,7 @@ class MenuItemAdmin(admin.ModelAdmin):
     "is_sold_out",
     "is_active",
     "allow_spicy",
+    "allow_size",
     )
 
     search_fields = (
