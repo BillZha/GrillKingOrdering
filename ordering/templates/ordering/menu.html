@@ -343,9 +343,12 @@
 
     {% csrf_token %}
     <div class="header">
+    <div class="brand-row">
         <h1>GRILL KING</h1>
-        <p>Scan · Order · Enjoy</p>
+        <span class="header-subbrand">Asian BBQ & Seafood</span>
     </div>
+    <p>Scan · Order · Enjoy</p>
+</div>
 
     <div class="table-info">
     Table {{ table_number|stringformat:"02d" }}
