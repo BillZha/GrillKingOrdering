@@ -884,9 +884,26 @@ function openItemModal(element) {
     const description = element.dataset.description;
     const price = Number(element.dataset.price);
     const imageUrl = element.dataset.image;
+
+    // Spicy option
     const allowSpicy = element.dataset.allowSpicy === "true";
     const spicyOptions = document.getElementById("spicy-options");
 
+    if (allowSpicy) {
+        spicyOptions.style.display = "block";
+    } else {
+        spicyOptions.style.display = "none";
+    }
+
+    const defaultSpicy = document.querySelector(
+        'input[name="spicy"][value="Not Spicy"]'
+    );
+
+    if (defaultSpicy) {
+        defaultSpicy.checked = true;
+    }
+
+    // Size option
     const allowSize = element.dataset.allowSize === "true";
     const sizeOptions = document.getElementById("size-options");
 
@@ -906,40 +923,79 @@ function openItemModal(element) {
             `Large - $${largePrice.toFixed(2)}`;
 
         smallRadio.checked = true;
-
     } else {
         sizeOptions.style.display = "none";
     }
 
-    if (allowSpicy) {
-            spicyOptions.style.display = "block";
-        } else {
-            spicyOptions.style.display = "none";
-        }
+    // Item information
+    document.getElementById("detail-name").innerText = name;
 
-    const defaultSpicy = document.querySelector(
-        'input[name="spicy"][value="Not Spicy"]'
-    );
+    document.getElementById("detail-description").innerText =
+        description || "";
 
-    if (defaultSpicy) {
-        defaultSpicy.checked = true;
+    document.getElementById("detail-price").innerText =
+        "$" + (allowSize ? smallPrice : price).toFixed(2);
+
+    // Change displayed price when size changes
+    if (allowSize) {
+        smallRadio.onchange = function () {
+            document.getElementById("detail-price").innerText =
+                "$" + smallPrice.toFixed(2);
+        };
+
+        largeRadio.onchange = function () {
+            document.getElementById("detail-price").innerText =
+                "$" + largePrice.toFixed(2);
+        };
     }
 
-    document.getElementById("detail-name").innerText = name;
-    document.getElementById("detail-description").innerText = description || "";
-    document.getElementById("detail-price").innerText =
-    "$" + (allowSize ? smallPrice : price).toFixed(2);
+    // Image
+    const image = document.getElementById("detail-image");
 
-    if (allowSize) {
-    smallRadio.onchange = function () {
-        document.getElementById("detail-price").innerText =
-            "$" + smallPrice.toFixed(2);
+    if (imageUrl) {
+        image.src = imageUrl;
+        image.style.display = "block";
+    } else {
+        image.style.display = "none";
+    }
+
+    // Add to order
+    document.getElementById("detail-add-btn").onclick = function () {
+        const spicy = allowSpicy
+            ? document.querySelector(
+                'input[name="spicy"]:checked'
+            ).value
+            : "Not Spicy";
+
+        let selectedPrice = price;
+        let selectedSize = "";
+
+        if (allowSize) {
+            selectedSize = document.querySelector(
+                'input[name="size"]:checked'
+            ).value;
+
+            selectedPrice =
+                selectedSize === "Large"
+                    ? largePrice
+                    : smallPrice;
+        }
+
+        const orderName = allowSize
+            ? `${name} (${selectedSize})`
+            : name;
+
+        addConfiguredItem(
+            orderName,
+            selectedPrice,
+            spicy
+        );
+
+        closeItemModal();
     };
 
-    largeRadio.onchange = function () {
-        document.getElementById("detail-price").innerText =
-            "$" + largePrice.toFixed(2);
-    };
+    // Open modal
+    document.getElementById("item-modal").style.display = "block";
 }
 
     const image = document.getElementById("detail-image");
