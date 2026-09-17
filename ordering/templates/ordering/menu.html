@@ -998,51 +998,7 @@ function openItemModal(element) {
     document.getElementById("item-modal").style.display = "block";
 }
 
-    const image = document.getElementById("detail-image");
-
-    if (imageUrl) {
-        image.src = imageUrl;
-        image.style.display = "block";
-    } else {
-        image.style.display = "none";
-    }
-
-    const spicy = allowSpicy
-    ? document.querySelector('input[name="spicy"]:checked').value
-    : "Not Spicy";
-
-let selectedPrice = price;
-let selectedSize = "";
-
-if (allowSize) {
-    selectedSize = document.querySelector(
-        'input[name="size"]:checked'
-    ).value;
-
-    selectedPrice =
-        selectedSize === "Large"
-            ? largePrice
-            : smallPrice;
-}
-
-const orderName = allowSize
-    ? `${name} (${selectedSize})`
-    : name;
-
-addConfiguredItem(
-    orderName,
-    selectedPrice,
-    spicy
-);
-
-closeItemModal();
-
-        closeItemModal();
-    };
-
-    document.getElementById("item-modal").style.display = "block";
-}
-
+ 
 
 function addConfiguredItem(name, price, spicy) {
     const existingItem = cart.find(item =>
