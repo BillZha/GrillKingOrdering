@@ -15,89 +15,192 @@
             margin: 0;
             padding: 30px;
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            background: #f7f5ef;
             color: #111;
         }
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
             font-size: 32px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            color: #143d2e;
+            margin: 0 0 8px;
+        }
+
+        .page-subtitle {
+            text-align: center;
+            color: #777;
+            font-size: 14px;
+            margin-bottom: 24px;
         }
 
         .print-area {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
         }
 
         .print-btn {
             border: none;
-            background: #111;
-            color: white;
-            padding: 14px 24px;
             border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
+            background: #143d2e;
+            color: white;
+            padding: 12px 22px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
         }
 
+        .print-btn:hover {
+            opacity: 0.9;
+        }
+
         .grid {
-            max-width: 1200px;
-            margin: auto;
-
             display: grid;
-            grid-template-columns:
-                repeat(auto-fit, minmax(220px, 1fr));
-
-            gap: 22px;
+            grid-template-columns: repeat(
+                auto-fit,
+                minmax(245px, 1fr)
+            );
+            gap: 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: start;
         }
 
         .table-card {
-            background: white;
-            border-radius: 18px;
-            padding: 24px 18px;
+            width: 100%;
+            max-width: 270px;
+            background: #fffdf7;
+
+            border: 4px solid #143d2e;
+            border-radius: 22px;
+
+            padding: 18px 16px 20px;
             text-align: center;
 
+            position: relative;
+
             box-shadow:
-                0 4px 16px rgba(0,0,0,0.08);
+                inset 0 0 0 2px #d6a62f,
+                0 6px 18px rgba(0, 0, 0, 0.10);
+
+            break-inside: avoid;
+            page-break-inside: avoid;
+        }
+
+        .table-card::before {
+            content: "♛";
+            display: block;
+            color: #d6a62f;
+            font-size: 25px;
+            line-height: 1;
+            margin-bottom: 7px;
         }
 
         .brand {
-            font-size: 16px;
-            font-weight: bold;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 1.6px;
+            color: #143d2e;
+            margin-bottom: 8px;
+        }
+
+        .tagline {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #82651c;
+            margin-bottom: 15px;
         }
 
         .table-number {
-            font-size: 27px;
-            font-weight: bold;
-            margin-bottom: 18px;
+            width: 90%;
+            margin: 0 auto 15px;
+
+            padding: 9px 8px;
+
+            background: #fff3cc;
+            border: 2px solid #d6a62f;
+            border-radius: 14px;
+
+            color: #143d2e;
+            font-size: 25px;
+            font-weight: 800;
         }
 
-        .table-card img {
+        .qr-wrap {
+            background: white;
+            border: 2px solid #d6a62f;
+            border-radius: 12px;
+
+            padding: 10px;
+            margin: 0 auto 15px;
+
+            width: 205px;
+            height: 205px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .qr-wrap img {
             width: 180px;
             height: 180px;
+
             display: block;
-            margin: auto;
+            object-fit: contain;
+
+            image-rendering: pixelated;
         }
 
         .scan-text {
-            margin-top: 18px;
-            font-size: 17px;
-            font-weight: bold;
+            width: 90%;
+            margin: 0 auto 7px;
+
+            background: #143d2e;
+            color: white;
+
+            padding: 10px 8px;
+
+            border: 2px solid #d6a62f;
+            border-radius: 14px;
+
+            font-size: 18px;
+            font-weight: 800;
         }
 
         .scan-subtext {
-            margin-top: 5px;
-            color: #777;
-            font-size: 13px;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .footer-icon {
+            color: #d6a62f;
+            font-size: 18px;
+            margin-top: 7px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 15px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-card {
+                max-width: 300px;
+                margin: 0 auto;
+            }
         }
 
         @media print {
-
             @page {
-                margin: 10mm;
+                size: letter;
+                margin: 8mm;
             }
 
             body {
@@ -106,29 +209,65 @@
             }
 
             h1,
+            .page-subtitle,
             .print-area {
                 display: none;
             }
 
             .grid {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 12mm;
+                max-width: none;
+
+                grid-template-columns:
+                    repeat(3, 1fr);
+
+                gap: 8mm;
             }
 
             .table-card {
-                box-shadow: none;
-                border: 1px solid #ccc;
-                border-radius: 12px;
-                padding: 12mm;
+                width: 100%;
+                max-width: none;
 
-                break-inside: avoid;
-                page-break-inside: avoid;
+                box-shadow: none;
+
+                padding: 12px 10px 14px;
+
+                border-width: 3px;
             }
 
-            .table-card img {
-                width: 50mm;
-                height: 50mm;
+            .brand {
+                font-size: 16px;
+            }
+
+            .tagline {
+                font-size: 7px;
+                margin-bottom: 9px;
+            }
+
+            .table-number {
+                font-size: 19px;
+                padding: 6px;
+                margin-bottom: 9px;
+            }
+
+            .qr-wrap {
+                width: 150px;
+                height: 150px;
+                padding: 6px;
+                margin-bottom: 9px;
+            }
+
+            .qr-wrap img {
+                width: 136px;
+                height: 136px;
+            }
+
+            .scan-text {
+                font-size: 14px;
+                padding: 6px;
+            }
+
+            .scan-subtext {
+                font-size: 9px;
             }
         }
     </style>
@@ -137,6 +276,10 @@
 <body>
 
     <h1>GRILL KING · TABLE QR CODES</h1>
+
+    <div class="page-subtitle">
+        Official table ordering QR codes
+    </div>
 
     <div class="print-area">
         <button
@@ -156,14 +299,20 @@
                     GRILL KING
                 </div>
 
+                <div class="tagline">
+                    Good Food · Better Times
+                </div>
+
                 <div class="table-number">
                     Table {{ table.number|stringformat:"02d" }}
                 </div>
 
-                <img
-                    src="data:image/png;base64,{{ table.qr }}"
-                    alt="Table {{ table.number }} QR Code"
-                >
+                <div class="qr-wrap">
+                    <img
+                        src="data:image/png;base64,{{ table.qr }}"
+                        alt="Table {{ table.number }} QR Code"
+                    >
+                </div>
 
                 <div class="scan-text">
                     Scan to Order
@@ -171,6 +320,10 @@
 
                 <div class="scan-subtext">
                     Scan with your phone camera
+                </div>
+
+                <div class="footer-icon">
+                    ◆
                 </div>
 
             </div>
