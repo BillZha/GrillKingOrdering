@@ -198,78 +198,42 @@
         }
 
         @media print {
-            @page {
-                size: letter;
-                margin: 8mm;
-            }
+    @page {
+        size: letter;
+        margin: 10mm;
+    }
 
-            body {
-                background: white;
-                padding: 0;
-            }
+    body {
+        background: white;
+        padding: 0;
+    }
 
-            h1,
-            .page-subtitle,
-            .print-area {
-                display: none;
-            }
+    h1,
+    .page-subtitle,
+    .print-area {
+        display: none;
+    }
 
-            .grid {
-                max-width: none;
+    .grid {
+        display: block;
+        max-width: none;
+    }
 
-                grid-template-columns:
-                    repeat(3, 1fr);
+    .table-card {
+        width: 100%;
+        max-width: 350px;
+        margin: 0 auto 0;
+        box-shadow: none;
+        page-break-after: always;
+        break-after: page;
+        page-break-inside: avoid;
+    }
 
-                gap: 8mm;
-            }
-
-            .table-card {
-                width: 100%;
-                max-width: none;
-
-                box-shadow: none;
-
-                padding: 12px 10px 14px;
-
-                border-width: 3px;
-            }
-
-            .brand {
-                font-size: 16px;
-            }
-
-            .tagline {
-                font-size: 7px;
-                margin-bottom: 9px;
-            }
-
-            .table-number {
-                font-size: 19px;
-                padding: 6px;
-                margin-bottom: 9px;
-            }
-
-            .qr-wrap {
-                width: 150px;
-                height: 150px;
-                padding: 6px;
-                margin-bottom: 9px;
-            }
-
-            .qr-wrap img {
-                width: 136px;
-                height: 136px;
-            }
-
-            .scan-text {
-                font-size: 14px;
-                padding: 6px;
-            }
-
-            .scan-subtext {
-                font-size: 9px;
-            }
-        }
+    .table-card:last-child {
+        page-break-after: auto;
+        break-after: auto;
+    }
+}
     </style>
 </head>
 
@@ -291,7 +255,7 @@
 
     <div class="grid">
 
-        {% for table in tables %}
+        {% for table in tables|slice:":8" %}
 
             <div class="table-card">
 
