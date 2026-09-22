@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.menu, name='menu'),
     path("kitchen/login/", views.kitchen_login, name="kitchen_login"),
     path('table/<int:table_number>/', views.menu, name='table_menu'),
+    path("print-test/", views.print_test, name="print_test"),
     path('place-order/', views.place_order, name='place_order'),
     path('qr-codes/', views.qr_codes, name='qr_codes'),
     path("kitchen/", views.kitchen, name="kitchen"),

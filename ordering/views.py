@@ -230,3 +230,6 @@ def update_order_status(request, order_id):
         "success": True,
         "status": order.status
     })
+
+def print_test(request):
+    return render(request, "ordering/print_test.html")
