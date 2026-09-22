@@ -143,6 +143,42 @@ def kitchen_login(request):
         }
     )
 
+def kitchen_print_orders(request):
+    token = request.headers.get("X-Print-Token")
+
+    if not token or token != settings.PRINT_API_TOKEN:
+        return JsonResponse(
+            {"error": "Unauthorized"},
+            status=403
+        )
+
+    orders = Order.objects.exclude(
+        status="completed"
+    ).prefetch_related("items").order_by("created_at")
+
+    data = []
+
+    for order in orders:
+        data.append({
+            "id": order.id,
+            "table_number": order.table_number,
+            "status": order.status,
+            "created_at": timezone.localtime(
+                order.created_at
+            ).strftime("%I:%M %p"),
+            "items": [
+                {
+                    "name": item.name,
+                    "quantity": item.quantity,
+                    "spicy": item.spicy,
+                }
+                for item in order.items.all()
+            ]
+        })
+
+    return JsonResponse({
+        "orders": data
+    })
 
 def kitchen_orders(request):
     if not request.session.get("kitchen_authorized"):

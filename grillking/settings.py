@@ -225,3 +225,7 @@ LOGGING = {
         },
     },
 }
+PRINT_API_TOKEN = os.environ.get(
+    "PRINT_API_TOKEN",
+    ""
+)

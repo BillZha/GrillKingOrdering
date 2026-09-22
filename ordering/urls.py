@@ -9,6 +9,11 @@ urlpatterns = [
     path('place-order/', views.place_order, name='place_order'),
     path('qr-codes/', views.qr_codes, name='qr_codes'),
     path("kitchen/", views.kitchen, name="kitchen"),
+    path(
+         "kitchen/print-orders/",
+         views.kitchen_print_orders,
+            name="kitchen_print_orders"
+    ),
     path("kitchen/orders/", views.kitchen_orders, name="kitchen_orders"),
     path(
         "kitchen/order/<int:order_id>/status/",
