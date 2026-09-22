@@ -10,6 +10,7 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
 
 from .models import Category, MenuItem, Order, OrderItem
+from .models import Feedback
 from django.conf import settings
 from django.shortcuts import redirect
 
@@ -269,3 +270,79 @@ def update_order_status(request, order_id):
 
 def print_test(request):
     return render(request, "ordering/print_test.html")
+
+@require_POST
+def submit_feedback(request):
+    try:
+        data = json.loads(request.body)
+
+        table_number = data.get("table_number")
+        category = data.get("category")
+        rating = data.get("rating")
+        comment = data.get("comment", "").strip()
+
+        valid_categories = {
+            "service",
+            "food",
+            "speed",
+            "atmosphere",
+        }
+
+        if category not in valid_categories:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid category",
+                },
+                status=400,
+            )
+
+        try:
+            rating = int(rating)
+        except (TypeError, ValueError):
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Invalid rating",
+                },
+                status=400,
+            )
+
+        if rating < 1 or rating > 5:
+            return JsonResponse(
+                {
+                    "success": False,
+                    "error": "Rating must be between 1 and 5",
+                },
+                status=400,
+            )
+
+        try:
+            table_number = int(table_number)
+        except (TypeError, ValueError):
+            table_number = None
+
+        Feedback.objects.create(
+            table_number=table_number,
+            category=category,
+            rating=rating,
+            comment=comment,
+        )
+
+        return JsonResponse(
+            {
+                "success": True,
+                "message": "Thank you for your feedback!",
+            }
+        )
+
+    except Exception as e:
+        print("Feedback error:", e)
+
+        return JsonResponse(
+            {
+                "success": False,
+                "error": "Unable to submit feedback",
+            },
+            status=500,
+        )

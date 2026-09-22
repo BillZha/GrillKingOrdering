@@ -13,6 +13,252 @@
             padding: 0;
         }
 
+        .feedback-floating-btn {
+    position: fixed;
+    right: 18px;
+    bottom: 90px;
+    z-index: 900;
+
+    border: none;
+    border-radius: 999px;
+
+    padding: 12px 18px;
+
+    background: #173f35;
+    color: #ffffff;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.22);
+
+    cursor: pointer;
+}
+
+.feedback-floating-btn:active {
+    transform: scale(0.97);
+}
+
+
+.feedback-modal {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    z-index: 3000;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+
+.feedback-modal.show {
+    display: flex;
+}
+
+
+.feedback-modal-card {
+    position: relative;
+
+    width: 100%;
+    max-width: 430px;
+
+    max-height: 90vh;
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 28px 22px 24px;
+
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+
+.feedback-modal-card h2 {
+    margin: 0;
+
+    text-align: center;
+
+    color: #173f35;
+
+    font-size: 24px;
+}
+
+
+.feedback-subtitle {
+    margin: 8px 0 24px;
+
+    text-align: center;
+
+    color: #777777;
+
+    font-size: 14px;
+}
+
+
+.feedback-close {
+    position: absolute;
+
+    right: 14px;
+    top: 10px;
+
+    border: none;
+    background: transparent;
+
+    font-size: 30px;
+    color: #777777;
+
+    cursor: pointer;
+}
+
+
+.feedback-section-title {
+    margin: 18px 0 10px;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    color: #222222;
+}
+
+
+.feedback-categories {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 10px;
+}
+
+
+.feedback-category {
+    border: 1px solid #d8d8d8;
+
+    border-radius: 12px;
+
+    background: #ffffff;
+
+    padding: 13px 8px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    color: #333333;
+
+    cursor: pointer;
+}
+
+
+.feedback-category.selected {
+    background: #173f35;
+
+    border-color: #173f35;
+
+    color: #ffffff;
+}
+
+
+.feedback-stars {
+    display: flex;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    margin: 12px 0 20px;
+}
+
+
+.feedback-stars button {
+    padding: 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #d8d8d8;
+
+    font-size: 38px;
+
+    cursor: pointer;
+}
+
+
+.feedback-stars button.selected {
+    color: #d4a52c;
+}
+
+
+.feedback-comment {
+    width: 100%;
+    min-height: 100px;
+
+    box-sizing: border-box;
+
+    resize: vertical;
+
+    border: 1px solid #d8d8d8;
+    border-radius: 12px;
+
+    padding: 12px;
+
+    font-family: inherit;
+    font-size: 15px;
+
+    outline: none;
+}
+
+
+.feedback-comment:focus {
+    border-color: #173f35;
+}
+
+
+.feedback-message {
+    min-height: 20px;
+
+    margin-top: 10px;
+
+    text-align: center;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+.feedback-submit-btn {
+    width: 100%;
+
+    margin-top: 8px;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 14px;
+
+    background: #173f35;
+
+    color: #ffffff;
+
+    font-size: 16px;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.feedback-submit-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
         body {
             font-family: Arial, sans-serif;
             background: #f6f6f6;
@@ -356,6 +602,155 @@
 </head>
 
 <body>
+
+    <button
+    type="button"
+    class="feedback-floating-btn"
+    onclick="openFeedbackModal()"
+>
+    ★ Feedback
+</button>
+
+
+<div
+    id="feedback-modal"
+    class="feedback-modal"
+>
+    <div class="feedback-modal-card">
+
+        <button
+            type="button"
+            class="feedback-close"
+            onclick="closeFeedbackModal()"
+        >
+            ×
+        </button>
+
+        <h2>We Value Your Feedback</h2>
+
+        <p class="feedback-subtitle">
+            Help us make your next visit even better.
+        </p>
+
+
+        <div class="feedback-section-title">
+            What would you like to comment on?
+        </div>
+
+        <div class="feedback-categories">
+
+            <button
+                type="button"
+                class="feedback-category"
+                data-category="service"
+                onclick="selectFeedbackCategory(this)"
+            >
+                Service
+            </button>
+
+            <button
+                type="button"
+                class="feedback-category"
+                data-category="food"
+                onclick="selectFeedbackCategory(this)"
+            >
+                Food
+            </button>
+
+            <button
+                type="button"
+                class="feedback-category"
+                data-category="speed"
+                onclick="selectFeedbackCategory(this)"
+            >
+                Speed
+            </button>
+
+            <button
+                type="button"
+                class="feedback-category"
+                data-category="atmosphere"
+                onclick="selectFeedbackCategory(this)"
+            >
+                Atmosphere
+            </button>
+
+        </div>
+
+
+        <div class="feedback-section-title">
+            How was your experience?
+        </div>
+
+        <div class="feedback-stars">
+
+            <button
+                type="button"
+                data-rating="1"
+                onclick="selectFeedbackRating(1)"
+            >
+                ★
+            </button>
+
+            <button
+                type="button"
+                data-rating="2"
+                onclick="selectFeedbackRating(2)"
+            >
+                ★
+            </button>
+
+            <button
+                type="button"
+                data-rating="3"
+                onclick="selectFeedbackRating(3)"
+            >
+                ★
+            </button>
+
+            <button
+                type="button"
+                data-rating="4"
+                onclick="selectFeedbackRating(4)"
+            >
+                ★
+            </button>
+
+            <button
+                type="button"
+                data-rating="5"
+                onclick="selectFeedbackRating(5)"
+            >
+                ★
+            </button>
+
+        </div>
+
+
+        <textarea
+            id="feedback-comment"
+            class="feedback-comment"
+            maxlength="1000"
+            placeholder="Tell us more... (optional)"
+        ></textarea>
+
+
+        <div
+            id="feedback-message"
+            class="feedback-message"
+        ></div>
+
+
+        <button
+            type="button"
+            class="feedback-submit-btn"
+            onclick="submitFeedback()"
+        >
+            Submit Feedback
+        </button>
+
+    </div>
+</div>
 
     {% csrf_token %}
     <div class="header">
@@ -1088,6 +1483,261 @@ function closeItemModal() {document.getElementById("item-modal").style.display =
      if (categoryButtons.length > 0) {
          categoryButtons[0].click();
      }
+</script>
+<script>
+let selectedFeedbackCategory = "";
+let selectedFeedbackRating = 0;
+
+
+function openFeedbackModal() {
+    document
+        .getElementById("feedback-modal")
+        .classList.add("show");
+}
+
+
+function closeFeedbackModal() {
+    document
+        .getElementById("feedback-modal")
+        .classList.remove("show");
+}
+
+
+function selectFeedbackCategory(button) {
+    document
+        .querySelectorAll(".feedback-category")
+        .forEach(btn => {
+            btn.classList.remove("selected");
+        });
+
+    button.classList.add("selected");
+
+    selectedFeedbackCategory =
+        button.dataset.category;
+}
+
+
+function selectFeedbackRating(rating) {
+    selectedFeedbackRating = rating;
+
+    document
+        .querySelectorAll(".feedback-stars button")
+        .forEach(button => {
+            const buttonRating =
+                Number(button.dataset.rating);
+
+            if (buttonRating <= rating) {
+                button.classList.add("selected");
+            } else {
+                button.classList.remove("selected");
+            }
+        });
+}
+
+
+function getFeedbackTableNumber() {
+    const match =
+        window.location.pathname.match(
+            /\/table\/(\d+)\//
+        );
+
+    if (match) {
+        return Number(match[1]);
+    }
+
+    return null;
+}
+
+
+function feedbackGetCookie(name) {
+    let cookieValue = null;
+
+    if (document.cookie) {
+        const cookies =
+            document.cookie.split(";");
+
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+
+            if (
+                cookie.startsWith(
+                    name + "="
+                )
+            ) {
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+            }
+        }
+    }
+
+    return cookieValue;
+}
+
+
+async function submitFeedback() {
+    const message =
+        document.getElementById(
+            "feedback-message"
+        );
+
+    const submitButton =
+        document.querySelector(
+            ".feedback-submit-btn"
+        );
+
+    if (!selectedFeedbackCategory) {
+        message.style.color = "#b42318";
+        message.textContent =
+            "Please select a category.";
+
+        return;
+    }
+
+    if (!selectedFeedbackRating) {
+        message.style.color = "#b42318";
+        message.textContent =
+            "Please select a rating.";
+
+        return;
+    }
+
+    const comment =
+        document
+            .getElementById(
+                "feedback-comment"
+            )
+            .value
+            .trim();
+
+    submitButton.disabled = true;
+
+    submitButton.textContent =
+        "Submitting...";
+
+    message.textContent = "";
+
+    try {
+        const response = await fetch(
+            "/feedback/submit/",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json",
+
+                    "X-CSRFToken":
+                        feedbackGetCookie(
+                            "csrftoken"
+                        ),
+                },
+
+                body: JSON.stringify({
+                    table_number:
+                        getFeedbackTableNumber(),
+
+                    category:
+                        selectedFeedbackCategory,
+
+                    rating:
+                        selectedFeedbackRating,
+
+                    comment:
+                        comment,
+                }),
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "Unable to submit feedback"
+            );
+        }
+
+        message.style.color = "#173f35";
+
+        message.textContent =
+            "Thank you! Your feedback has been submitted.";
+
+        setTimeout(() => {
+            resetFeedbackForm();
+
+            closeFeedbackModal();
+        }, 1500);
+
+    } catch (error) {
+        console.error(error);
+
+        message.style.color = "#b42318";
+
+        message.textContent =
+            "Something went wrong. Please try again.";
+
+    } finally {
+        submitButton.disabled = false;
+
+        submitButton.textContent =
+            "Submit Feedback";
+    }
+}
+
+
+function resetFeedbackForm() {
+    selectedFeedbackCategory = "";
+    selectedFeedbackRating = 0;
+
+    document
+        .querySelectorAll(
+            ".feedback-category"
+        )
+        .forEach(button => {
+            button.classList.remove(
+                "selected"
+            );
+        });
+
+    document
+        .querySelectorAll(
+            ".feedback-stars button"
+        )
+        .forEach(button => {
+            button.classList.remove(
+                "selected"
+            );
+        });
+
+    document.getElementById(
+        "feedback-comment"
+    ).value = "";
+
+    document.getElementById(
+        "feedback-message"
+    ).textContent = "";
+}
+
+
+document
+    .getElementById("feedback-modal")
+    .addEventListener(
+        "click",
+        function(event) {
+            if (
+                event.target === this
+            ) {
+                closeFeedbackModal();
+            }
+        }
+    );
 </script>
 </body>
 </html>
