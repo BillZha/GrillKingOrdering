@@ -10,6 +10,17 @@ urlpatterns = [
     path('qr-codes/', views.qr_codes, name='qr_codes'),
     path("kitchen/", views.kitchen, name="kitchen"),
     path(
+        "kitchen/print-feedback/",
+        views.kitchen_print_feedback,
+        name="kitchen_print_feedback",
+    ),
+
+    path(
+        "kitchen/feedback/<int:feedback_id>/printed/",
+        views.mark_feedback_printed,
+        name="mark_feedback_printed",
+    ),
+    path(
         "feedback/submit/",
         views.submit_feedback,
         name="submit_feedback",

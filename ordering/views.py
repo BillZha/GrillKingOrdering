@@ -346,3 +346,72 @@ def submit_feedback(request):
             },
             status=500,
         )
+
+@require_GET
+def kitchen_print_feedback(request):
+    token = request.headers.get("X-Print-Token")
+
+    if (
+        not settings.PRINT_API_TOKEN
+        or token != settings.PRINT_API_TOKEN
+    ):
+        return JsonResponse(
+            {"error": "Unauthorized"},
+            status=403,
+        )
+
+    feedbacks = Feedback.objects.filter(
+        printed=False
+    ).order_by("created_at")
+
+    data = []
+
+    for feedback in feedbacks:
+        data.append({
+            "id": feedback.id,
+            "table_number": feedback.table_number,
+            "category": feedback.get_category_display(),
+            "rating": feedback.rating,
+            "comment": feedback.comment,
+            "created_at": feedback.created_at.strftime(
+                "%I:%M %p"
+            ),
+        })
+
+    return JsonResponse({
+        "feedbacks": data
+    })
+
+
+@csrf_exempt
+@require_POST
+def mark_feedback_printed(request, feedback_id):
+    token = request.headers.get("X-Print-Token")
+
+    if (
+        not settings.PRINT_API_TOKEN
+        or token != settings.PRINT_API_TOKEN
+    ):
+        return JsonResponse(
+            {"error": "Unauthorized"},
+            status=403,
+        )
+
+    try:
+        feedback = Feedback.objects.get(
+            id=feedback_id
+        )
+    except Feedback.DoesNotExist:
+        return JsonResponse(
+            {"error": "Feedback not found"},
+            status=404,
+        )
+
+    feedback.printed = True
+    feedback.save(
+        update_fields=["printed"]
+    )
+
+    return JsonResponse({
+        "success": True
+    })
