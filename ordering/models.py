@@ -128,3 +128,38 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.name} x {self.quantity}"
+
+class Feedback(models.Model):
+    CATEGORY_CHOICES = [
+        ("service", "Service"),
+        ("food", "Food"),
+        ("speed", "Speed"),
+        ("atmosphere", "Atmosphere"),
+    ]
+
+    table_number = models.PositiveIntegerField(
+        blank=True,
+        null=True
+    )
+
+    category = models.CharField(
+        max_length=20,
+        choices=CATEGORY_CHOICES
+    )
+
+    rating = models.PositiveIntegerField()
+
+    comment = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return (
+            f"Table {self.table_number} - "
+            f"{self.get_category_display()} - "
+            f"{self.rating}/5"
+        )

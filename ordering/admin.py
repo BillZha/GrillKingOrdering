@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, MenuItem, Order, OrderItem
+from .models import Category, MenuItem, Order, OrderItem, Feedback
 
 
 @admin.register(Category)
@@ -13,6 +13,29 @@ class CategoryAdmin(admin.ModelAdmin):
         'sort_order',
     )
 
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = (
+        "table_number",
+        "category",
+        "rating",
+        "comment",
+        "created_at",
+    )
+
+    list_filter = (
+        "category",
+        "rating",
+        "created_at",
+    )
+
+    search_fields = (
+        "comment",
+    )
+
+    ordering = (
+        "-created_at",
+    )
 
 @admin.register(MenuItem)
 class MenuItemAdmin(admin.ModelAdmin):
