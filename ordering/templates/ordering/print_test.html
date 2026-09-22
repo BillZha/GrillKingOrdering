@@ -17,70 +17,78 @@
 
     <script>
         function testPrint() {
-            const status = document.getElementById("status");
+    const status = document.getElementById("status");
 
-            const url =
-                "http://192.168.1.85/cgi-bin/epos/service.cgi" +
-                "?devid=local_printer&timeout=10000";
+    const url =
+        "http://192.168.1.85/cgi-bin/epos/service.cgi" +
+        "?devid=local_printer&timeout=10000";
 
-            const soap = `
-                <?xml version="1.0" encoding="UTF-8"?>
-                <s:Envelope
-                    xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">
-                    <s:Body>
-                        <epos-print
-                            xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">
-                            <text align="center"/>
-                            <text dw="true" dh="true"/>
-                            <text>GRILL KING&#10;</text>
-                            <text dw="false" dh="false"/>
-                            <text>PRINTER TEST&#10;</text>
-                            <text>Table 01&#10;</text>
-                            <text>Printer Connected&#10;</text>
-                            <feed line="3"/>
-                            <cut type="feed"/>
-                        </epos-print>
-                    </s:Body>
-                </s:Envelope>
-            `;
+    const request =
+        '<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">' +
+            '<text lang="en" smooth="true"/>' +
+            '<text font="font_a"/>' +
+            '<text align="center"/>' +
+            '<text width="2" height="2">GRILL KING&#10;</text>' +
+            '<text width="1" height="1">PRINTER TEST&#10;</text>' +
+            '<text>Table 01&#10;</text>' +
+            '<text>Printer Connected&#10;</text>' +
+            '<feed line="3"/>' +
+            '<cut type="feed"/>' +
+        '</epos-print>';
 
-            const xhr = new XMLHttpRequest();
+    const soap =
+        '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">' +
+            '<s:Body>' +
+                request +
+            '</s:Body>' +
+        '</s:Envelope>';
 
-            xhr.open("POST", url, true);
+    const xhr = new XMLHttpRequest();
 
-            xhr.setRequestHeader(
-                "Content-Type",
-                "text/xml; charset=utf-8"
-            );
+    xhr.open("POST", url, true);
 
-            xhr.setRequestHeader(
-                "If-Modified-Since",
-                "Thu, 01 Jan 1970 00:00:00 GMT"
-            );
+    xhr.setRequestHeader(
+        "Content-Type",
+        "text/xml; charset=utf-8"
+    );
 
-            xhr.setRequestHeader("SOAPAction", "");
+    xhr.setRequestHeader(
+        "If-Modified-Since",
+        "Thu, 01 Jan 1970 00:00:00 GMT"
+    );
 
-            status.innerText = "Sending...";
+    xhr.setRequestHeader(
+        "SOAPAction",
+        '""'
+    );
 
-            xhr.onreadystatechange = function () {
-                if (xhr.readyState === 4) {
-                    if (xhr.status === 200) {
-                        status.innerText =
-                            "Print request sent successfully.";
-                    } else {
-                        status.innerText =
-                            "Print failed. HTTP " + xhr.status;
-                    }
-                }
-            };
+    status.innerText = "Sending...";
 
-            xhr.onerror = function () {
+    xhr.onreadystatechange = function () {
+        if (xhr.readyState === 4) {
+
+            console.log(xhr.responseText);
+
+            if (
+                xhr.status === 200 &&
+                xhr.responseText.includes('success="true"')
+            ) {
                 status.innerText =
-                    "Cannot connect to printer.";
-            };
-
-            xhr.send(soap);
+                    "Printed successfully.";
+            } else {
+                status.innerText =
+                    "Printer returned an error. Check Console.";
+            }
         }
+    };
+
+    xhr.onerror = function () {
+        status.innerText =
+            "Cannot connect to printer.";
+    };
+
+    xhr.send(soap);
+}
     </script>
 
 </body>

@@ -315,6 +315,7 @@
 
     let soundEnabled = false;
     let alarmRunning = false;
+    const printedOrders = new Set();
 
     async function loadOrders() {
         try {
@@ -322,6 +323,18 @@
             const data = await response.json();
 
             const orders = data.orders;
+
+            orders.forEach(order => {
+                if (
+                   order.status === "new" &&
+                   !printedOrders.has(order.id)
+                ) {      
+                   printKitchenOrder(order);
+                   printedOrders.add(order.id);
+                }
+            });
+
+
             latestOrders = orders;
             updateAlarm();
 
@@ -534,6 +547,66 @@
     }
 }
 
+const EPSON_PRINTER_URL =
+    "http://192.168.1.85/cgi-bin/epos/service.cgi" +
+    "?devid=local_printer&timeout=10000";
+
+function printKitchenOrder(order) {
+    const itemsText = order.items.map(item => {
+        let line = `${item.quantity} x ${item.name}`;
+
+        if (item.spicy && item.spicy !== "Not Spicy") {
+            line += ` - ${item.spicy}`;
+        }
+
+        return line + "&#10;";
+    }).join("");
+
+    const request =
+        '<epos-print xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">' +
+            '<text align="center"/>' +
+            '<text width="2" height="2">GRILL KING&#10;</text>' +
+            '<text width="1" height="1"/>' +
+            `<text>TABLE ${String(order.table_number).padStart(2, "0")}&#10;</text>` +
+            `<text>ORDER #${order.id}&#10;</text>` +
+            `<text>${order.created_at}&#10;</text>` +
+            '<text>------------------------------&#10;</text>' +
+            `<text>${itemsText}</text>` +
+            '<text>------------------------------&#10;</text>' +
+            '<feed line="3"/>' +
+            '<cut type="feed"/>' +
+        '</epos-print>';
+
+    const soap =
+        '<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/">' +
+            '<s:Body>' +
+                request +
+            '</s:Body>' +
+        '</s:Envelope>';
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.open("POST", EPSON_PRINTER_URL, true);
+
+    xhr.setRequestHeader(
+        "Content-Type",
+        "text/xml; charset=utf-8"
+    );
+
+    xhr.setRequestHeader(
+        "If-Modified-Since",
+        "Thu, 01 Jan 1970 00:00:00 GMT"
+    );
+
+    xhr.setRequestHeader(
+        "SOAPAction",
+        '""'
+    );
+
+    xhr.send(soap);
+}
+
+const printedOrders = new Set();
 
 function startAlarm() {
     if (!soundEnabled) {
