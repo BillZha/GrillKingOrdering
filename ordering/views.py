@@ -1,5 +1,9 @@
 import json
 import base64
+import xml.etree.ElementTree as ET
+from datetime import timedelta
+from xml.sax import saxutils
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from io import BytesIO
 import qrcode
@@ -417,3 +421,18 @@ def mark_feedback_printed(request, feedback_id):
     return JsonResponse({
         "success": True
     })
+
+@csrf_exempt
+@require_POST
+def epson_direct_print(request):
+    connection_type = request.POST.get(
+        "ConnectionType",
+        ""
+    )
+
+    printer_id = request.POST.get(
+        "ID",
+        ""
+    )
+
+    # 后面继续放完整的 Server Direct Print 代码

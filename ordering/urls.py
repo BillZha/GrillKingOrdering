@@ -16,6 +16,12 @@ urlpatterns = [
     ),
 
     path(
+        "epson/direct-print/",
+        views.epson_direct_print,
+        name="epson_direct_print",
+    ),
+
+    path(
         "kitchen/feedback/<int:feedback_id>/printed/",
         views.mark_feedback_printed,
         name="mark_feedback_printed",

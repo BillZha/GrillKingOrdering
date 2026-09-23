@@ -77,6 +77,15 @@ class Order(models.Model):
 
     table_number = models.PositiveIntegerField()
 
+    direct_printed = models.BooleanField(
+        default=False
+    )
+
+    direct_print_sent_at = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
