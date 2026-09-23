@@ -1,6 +1,7 @@
 import json
 import base64
 import xml.etree.ElementTree as ET
+from django.db import models
 from datetime import timedelta
 from xml.sax import saxutils
 from django.http import HttpResponse
@@ -435,4 +436,247 @@ def epson_direct_print(request):
         ""
     )
 
-    # 后面继续放完整的 Server Direct Print 代码
+    if printer_id != "grillking-kitchen":
+        return HttpResponse(
+            "",
+            status=403
+        )
+
+    if connection_type == "GetRequest":
+
+        retry_before = (
+            timezone.now()
+            - timedelta(seconds=60)
+        )
+
+        order = (
+            Order.objects
+            .filter(
+                status="new",
+                direct_printed=False,
+            )
+            .filter(
+                models.Q(
+                    direct_print_sent_at__isnull=True
+                )
+                |
+                models.Q(
+                    direct_print_sent_at__lte=
+                    retry_before
+                )
+            )
+            .order_by("created_at")
+            .first()
+        )
+
+        if not order:
+            xml = (
+                '<?xml version="1.0" encoding="utf-8"?>'
+                '<PrintRequestInfo Version="2.00">'
+                '</PrintRequestInfo>'
+            )
+
+            return HttpResponse(
+                xml,
+                content_type="text/xml; charset=utf-8"
+            )
+
+        order.direct_print_sent_at = timezone.now()
+
+        order.save(
+            update_fields=[
+                "direct_print_sent_at"
+            ]
+        )
+
+        job_id = f"order-{order.id}"
+
+        table_number = str(
+            order.table_number
+        ).zfill(2)
+
+        order_time = timezone.localtime(
+            order.created_at
+        ).strftime("%I:%M %p")
+
+        items_xml = ""
+
+        for item in order.items.all():
+            name = saxutils.escape(
+                str(item.name)
+            )
+
+            quantity = item.quantity
+
+            items_xml += (
+                '<text width="1" height="2"/>'
+                '<text em="true"/>'
+                f'<text>{quantity} x {name}&#10;</text>'
+            )
+
+            spicy = getattr(
+                item,
+                "spicy",
+                ""
+            )
+
+            if (
+                spicy
+                and spicy != "Not Spicy"
+            ):
+                spicy = saxutils.escape(
+                    str(spicy).upper()
+                )
+
+                items_xml += (
+                    '<text width="1" height="1"/>'
+                    '<text em="true"/>'
+                    f'<text>   *** {spicy} ***&#10;</text>'
+                )
+
+            items_xml += '<feed line="1"/>'
+
+        print_data = (
+            '<epos-print '
+            'xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">'
+
+            '<text align="center"/>'
+
+            '<text width="2" height="2"/>'
+            '<text em="true"/>'
+            '<text>GRILL KING&#10;</text>'
+
+            '<feed line="1"/>'
+
+            '<text width="2" height="2"/>'
+            f'<text>TABLE {table_number}&#10;</text>'
+
+            '<text width="1" height="1"/>'
+            '<text em="false"/>'
+
+            f'<text>ORDER #{order.id}   {order_time}&#10;</text>'
+
+            '<feed line="1"/>'
+
+            '<text>--------------------------------&#10;</text>'
+
+            '<feed line="1"/>'
+
+            '<text align="left"/>'
+
+            + items_xml +
+
+            '<text align="center"/>'
+
+            '<text width="1" height="1"/>'
+            '<text em="false"/>'
+
+            '<text>--------------------------------&#10;</text>'
+
+            '<text>END ORDER&#10;</text>'
+
+            '<feed line="6"/>'
+
+            '<cut type="feed"/>'
+
+            '</epos-print>'
+        )
+
+        xml = (
+            '<?xml version="1.0" encoding="utf-8"?>'
+            '<PrintRequestInfo Version="2.00">'
+            '<ePOSPrint>'
+            '<Parameter>'
+            '<devid>local_printer</devid>'
+            '<timeout>10000</timeout>'
+            f'<printjobid>{job_id}</printjobid>'
+            '</Parameter>'
+            '<PrintData>'
+            + print_data +
+            '</PrintData>'
+            '</ePOSPrint>'
+            '</PrintRequestInfo>'
+        )
+
+        return HttpResponse(
+            xml,
+            content_type="text/xml; charset=utf-8"
+        )
+
+    if connection_type == "SetResponse":
+
+        response_file = request.POST.get(
+            "ResponseFile",
+            ""
+        )
+
+        if not response_file:
+            return HttpResponse("")
+
+        try:
+            root = ET.fromstring(
+                response_file
+            )
+
+            job_id = None
+            success = False
+
+            for element in root.iter():
+                tag = element.tag.split("}")[-1]
+
+                if tag == "printjobid":
+                    job_id = (
+                        element.text or ""
+                    )
+
+                if tag == "response":
+                    success = (
+                        element.attrib.get(
+                            "success"
+                        )
+                        == "true"
+                    )
+
+            if (
+                job_id
+                and job_id.startswith("order-")
+            ):
+                order_id = int(
+                    job_id.replace(
+                        "order-",
+                        ""
+                    )
+                )
+
+                order = Order.objects.filter(
+                    id=order_id
+                ).first()
+
+                if order:
+                    if success:
+                        order.direct_printed = True
+
+                        order.save(
+                            update_fields=[
+                                "direct_printed"
+                            ]
+                        )
+
+                    else:
+                        order.direct_print_sent_at = None
+
+                        order.save(
+                            update_fields=[
+                                "direct_print_sent_at"
+                            ]
+                        )
+
+        except Exception as error:
+            print(
+                "Epson SetResponse error:",
+                error
+            )
+
+        return HttpResponse("")
+
+    return HttpResponse("")
