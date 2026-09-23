@@ -189,7 +189,7 @@ def text_to_epos_image(text):
 
     padding = 20
 
-    font_size = 40
+    font_size = 38
 
     line_spacing = 10
 
@@ -205,11 +205,11 @@ def text_to_epos_image(text):
 
     temp_image = Image.new(
 
-        "L",
+        "1",
 
         (width, 100),
 
-        255
+        1
 
     )
 
@@ -347,10 +347,7 @@ def text_to_epos_image(text):
 
     raw = bytearray()
 
-    image = image.point(
-        lambda p: 0 if p < 180 else 255,
-        mode="1"
-    )
+    
     pixels = image.load()
 
 
