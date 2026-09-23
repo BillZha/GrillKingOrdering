@@ -497,7 +497,7 @@ def epson_direct_print(request):
 
         order_time = timezone.localtime(
             order.created_at
-        ).strftime("%I:%M %p")
+        ).strftime("%Y-%m-%d  %I:%M %p")
 
         items_xml = ""
 
@@ -554,7 +554,8 @@ def epson_direct_print(request):
             '<text width="1" height="1"/>'
             '<text em="false"/>'
 
-            f'<text>ORDER #{order.id}   {order_time}&#10;</text>'
+            f'<text>ORDER #{order.id}&#10;</text>'
+            f'<text>{order_time}&#10;</text>'
 
             '<feed line="1"/>'
 
