@@ -826,6 +826,8 @@ def epson_direct_print(request):
             ""
         )
 
+        print("EPSON RESPONSE:", response_file)
+
         if not response_file:
             return HttpResponse("")
 
