@@ -609,28 +609,25 @@ def epson_direct_print(request):
             "DIRECT PRINT ORDER:",
             order.id if order else "NONE"
         )
-        # 没有新订单
-        if not order:
-            xml = (
-                '<?xml version="1.0" encoding="utf-8"?>'
-                '<PrintRequestInfo Version="2.00">'
-                '</PrintRequestInfo>'
-            )
+    # 没有新订单
+    if not order:
+        print("DIRECT PRINT ORDER: NONE")
 
-            print(
-                "DIRECT PRINT XML LENGTH:",
-                len(xml)
-            )
+        xml = (
+            '<?xml version="1.0" encoding="utf-8"?>'
+            '<PrintRequestInfo Version="2.00">'
+            '</PrintRequestInfo>'
+        )
 
-            print(
-                "DIRECT PRINT JOB:",
-                job_id
-            )
+        print(
+            "DIRECT PRINT XML LENGTH:",
+            len(xml)
+        )
 
-            return HttpResponse(
-                xml,
-                content_type="text/xml; charset=utf-8"
-            )
+        return HttpResponse(
+            xml,
+            content_type="text/xml; charset=utf-8"
+        )
 
         # 记录发送时间，避免瞬间重复
         order.direct_print_sent_at = timezone.now()
@@ -642,6 +639,16 @@ def epson_direct_print(request):
         )
 
         job_id = f"order-{order.id}"
+
+        print(
+           "DIRECT PRINT ORDER:",
+            order.id
+        )
+
+        print(
+            "DIRECT PRINT JOB:",
+            job_id
+        )
 
         table_number = str(
             order.table_number
