@@ -21,8 +21,14 @@ class MenuItem(models.Model):
         related_name='items'
     )
 
-    name = models.CharField(max_length=150)
+    name_zh = models.CharField(
+        max_length=200,
+        blank=True,
+        default=""
+    )
     description = models.TextField(blank=True)
+
+    
 
     price = models.DecimalField(
         max_digits=8,
