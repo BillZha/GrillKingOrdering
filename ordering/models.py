@@ -21,12 +21,19 @@ class MenuItem(models.Model):
         related_name='items'
     )
 
+    name = models.CharField(
+        max_length=200
+    )
+
     name_zh = models.CharField(
         max_length=200,
         blank=True,
         default=""
     )
-    description = models.TextField(blank=True)
+
+    description = models.TextField(
+        blank=True
+    )
 
     
 

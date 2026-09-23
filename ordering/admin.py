@@ -41,6 +41,7 @@ class FeedbackAdmin(admin.ModelAdmin):
 class MenuItemAdmin(admin.ModelAdmin):
     list_display = (
         "name",
+        "name_zh",
         "category",
         "price",
         "is_popular",
@@ -63,10 +64,10 @@ class MenuItemAdmin(admin.ModelAdmin):
     )
 
     search_fields = (
-        'name',
-        'description',
+        "name",
+        "name_zh",
+        "description",
     )
-
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
