@@ -3,6 +3,7 @@ import base64
 import xml.etree.ElementTree as ET
 from django.db import models
 from datetime import timedelta
+from pathlib import Path
 from xml.sax import saxutils
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -94,8 +95,142 @@ def place_order(request):
             'error': str(e)
         }, status=500)
 
-from django.conf import settings
 
+def text_to_epos_image(text):
+    font_path = (
+        Path(__file__).resolve().parent.parent
+        / "fonts"
+        / "NotoSansSC-VariableFont_wght.ttf"
+    )
+
+    width = 520
+    padding = 20
+    font_size = 34
+    line_spacing = 10
+
+    font = ImageFont.truetype(
+        str(font_path),
+        font_size
+    )
+
+    temp_image = Image.new(
+        "1",
+        (width, 100),
+        1
+    )
+
+    draw = ImageDraw.Draw(temp_image)
+
+    max_width = width - padding * 2
+
+    lines = []
+    current_line = ""
+
+    for char in text:
+        test_line = current_line + char
+
+        bbox = draw.textbbox(
+            (0, 0),
+            test_line,
+            font=font
+        )
+
+        text_width = bbox[2] - bbox[0]
+
+        if text_width <= max_width:
+            current_line = test_line
+        else:
+            if current_line:
+                lines.append(current_line)
+
+            current_line = char
+
+    if current_line:
+        lines.append(current_line)
+
+    if not lines:
+        lines = [""]
+
+    bbox = draw.textbbox(
+        (0, 0),
+        "测试Test",
+        font=font
+    )
+
+    line_height = bbox[3] - bbox[1]
+
+    height = (
+        padding * 2
+        + len(lines) * line_height
+        + (len(lines) - 1) * line_spacing
+    )
+
+    image = Image.new(
+        "1",
+        (width, height),
+        1
+    )
+
+    draw = ImageDraw.Draw(image)
+
+    y = padding
+
+    for line in lines:
+        bbox = draw.textbbox(
+            (0, 0),
+            line,
+            font=font
+        )
+
+        text_width = bbox[2] - bbox[0]
+
+        x = (width - text_width) // 2
+
+        draw.text(
+            (x, y),
+            line,
+            font=font,
+            fill=0
+        )
+
+        y += line_height + line_spacing
+
+    bytes_per_row = (width + 7) // 8
+
+    raw = bytearray()
+
+    pixels = image.load()
+
+    for y in range(height):
+        for byte_x in range(bytes_per_row):
+            value = 0
+
+            for bit in range(8):
+                x = byte_x * 8 + bit
+
+                value <<= 1
+
+                if (
+                    x < width
+                    and pixels[x, y] == 0
+                ):
+                    value |= 1
+
+            raw.append(value)
+
+    encoded = base64.b64encode(
+        raw
+    ).decode("ascii")
+
+    return (
+        f'<image '
+        f'width="{width}" '
+        f'height="{height}" '
+        f'color="color_1" '
+        f'mode="mono">'
+        f'{encoded}'
+        f'</image>'
+    )
 
 def qr_codes(request):
     tables = []
@@ -442,6 +577,9 @@ def epson_direct_print(request):
             status=403
         )
 
+    # =====================================
+    # Epson 请求新的打印任务
+    # =====================================
     if connection_type == "GetRequest":
 
         retry_before = (
@@ -461,14 +599,14 @@ def epson_direct_print(request):
                 )
                 |
                 models.Q(
-                    direct_print_sent_at__lte=
-                    retry_before
+                    direct_print_sent_at__lte=retry_before
                 )
             )
             .order_by("created_at")
             .first()
         )
 
+        # 没有新订单
         if not order:
             xml = (
                 '<?xml version="1.0" encoding="utf-8"?>'
@@ -481,6 +619,7 @@ def epson_direct_print(request):
                 content_type="text/xml; charset=utf-8"
             )
 
+        # 记录发送时间，避免瞬间重复
         order.direct_print_sent_at = timezone.now()
 
         order.save(
@@ -497,23 +636,58 @@ def epson_direct_print(request):
 
         order_time = timezone.localtime(
             order.created_at
-        ).strftime("%Y-%m-%d  %I:%M %p")
+        ).strftime(
+            "%Y-%m-%d  %I:%M %p"
+        )
 
+        # =====================================
+        # 菜品
+        # =====================================
         items_xml = ""
 
-        for item in order.items.all():
-            name = saxutils.escape(
-                str(item.name)
-            )
+        for item in order.items.select_related(
+            "menu_item"
+        ).all():
 
             quantity = item.quantity
 
-            items_xml += (
-                '<text width="1" height="2"/>'
-                '<text em="true"/>'
-                f'<text>{quantity} x {name}&#10;</text>'
-            )
+            # 有中文名 -> 转图片打印
+            if (
+                item.menu_item
+                and item.menu_item.name_zh
+            ):
+                kitchen_name = (
+                    item.menu_item.name_zh
+                )
 
+                item_line = (
+                    f"{quantity} × {kitchen_name}"
+                )
+
+                items_xml += text_to_epos_image(
+                    item_line
+                )
+
+                items_xml += (
+                    '<feed line="1"/>'
+                )
+
+            # 没中文名 -> 继续打印英文
+            else:
+                kitchen_name = item.name
+
+                safe_name = saxutils.escape(
+                    str(kitchen_name)
+                )
+
+                items_xml += (
+                    '<text width="1" height="2"/>'
+                    '<text em="true"/>'
+                    f'<text>{quantity} x '
+                    f'{safe_name}&#10;</text>'
+                )
+
+            # 辣度
             spicy = getattr(
                 item,
                 "spicy",
@@ -524,21 +698,29 @@ def epson_direct_print(request):
                 spicy
                 and spicy != "Not Spicy"
             ):
-                spicy = saxutils.escape(
+                safe_spicy = saxutils.escape(
                     str(spicy).upper()
                 )
 
                 items_xml += (
                     '<text width="1" height="1"/>'
                     '<text em="true"/>'
-                    f'<text>   *** {spicy} ***&#10;</text>'
+                    f'<text>   *** '
+                    f'{safe_spicy} ***'
+                    '&#10;</text>'
                 )
 
-            items_xml += '<feed line="1"/>'
+            items_xml += (
+                '<feed line="1"/>'
+            )
 
+        # =====================================
+        # Epson 小票主体
+        # =====================================
         print_data = (
             '<epos-print '
-            'xmlns="http://www.epson-pos.com/schemas/2011/03/epos-print">'
+            'xmlns="http://www.epson-pos.com/'
+            'schemas/2011/03/epos-print">'
 
             '<text align="center"/>'
 
@@ -549,7 +731,8 @@ def epson_direct_print(request):
             '<feed line="1"/>'
 
             '<text width="2" height="2"/>'
-            f'<text>TABLE {table_number}&#10;</text>'
+            f'<text>TABLE '
+            f'{table_number}&#10;</text>'
 
             '<text width="1" height="1"/>'
             '<text em="false"/>'
@@ -559,7 +742,9 @@ def epson_direct_print(request):
 
             '<feed line="1"/>'
 
-            '<text>--------------------------------&#10;</text>'
+            '<text>'
+            '--------------------------------'
+            '&#10;</text>'
 
             '<feed line="1"/>'
 
@@ -572,7 +757,9 @@ def epson_direct_print(request):
             '<text width="1" height="1"/>'
             '<text em="false"/>'
 
-            '<text>--------------------------------&#10;</text>'
+            '<text>'
+            '--------------------------------'
+            '&#10;</text>'
 
             '<text>END ORDER&#10;</text>'
 
@@ -583,27 +770,55 @@ def epson_direct_print(request):
             '</epos-print>'
         )
 
+        # =====================================
+        # Server Direct Print XML
+        # =====================================
         xml = (
-            '<?xml version="1.0" encoding="utf-8"?>'
-            '<PrintRequestInfo Version="2.00">'
+            '<?xml version="1.0" '
+            'encoding="utf-8"?>'
+
+            '<PrintRequestInfo '
+            'Version="2.00">'
+
             '<ePOSPrint>'
+
             '<Parameter>'
-            '<devid>local_printer</devid>'
-            '<timeout>10000</timeout>'
-            f'<printjobid>{job_id}</printjobid>'
+
+            '<devid>'
+            'local_printer'
+            '</devid>'
+
+            '<timeout>'
+            '10000'
+            '</timeout>'
+
+            f'<printjobid>'
+            f'{job_id}'
+            f'</printjobid>'
+
             '</Parameter>'
+
             '<PrintData>'
+
             + print_data +
+
             '</PrintData>'
+
             '</ePOSPrint>'
+
             '</PrintRequestInfo>'
         )
 
         return HttpResponse(
             xml,
-            content_type="text/xml; charset=utf-8"
+            content_type=(
+                "text/xml; charset=utf-8"
+            )
         )
 
+    # =====================================
+    # Epson 回传打印结果
+    # =====================================
     if connection_type == "SetResponse":
 
         response_file = request.POST.get(
@@ -623,7 +838,10 @@ def epson_direct_print(request):
             success = False
 
             for element in root.iter():
-                tag = element.tag.split("}")[-1]
+
+                tag = element.tag.split(
+                    "}"
+                )[-1]
 
                 if tag == "printjobid":
                     job_id = (
@@ -640,7 +858,9 @@ def epson_direct_print(request):
 
             if (
                 job_id
-                and job_id.startswith("order-")
+                and job_id.startswith(
+                    "order-"
+                )
             ):
                 order_id = int(
                     job_id.replace(
@@ -649,13 +869,17 @@ def epson_direct_print(request):
                     )
                 )
 
-                order = Order.objects.filter(
-                    id=order_id
-                ).first()
+                order = (
+                    Order.objects
+                    .filter(id=order_id)
+                    .first()
+                )
 
                 if order:
                     if success:
-                        order.direct_printed = True
+                        order.direct_printed = (
+                            True
+                        )
 
                         order.save(
                             update_fields=[
@@ -664,7 +888,9 @@ def epson_direct_print(request):
                         )
 
                     else:
-                        order.direct_print_sent_at = None
+                        order.direct_print_sent_at = (
+                            None
+                        )
 
                         order.save(
                             update_fields=[
