@@ -326,7 +326,7 @@ def text_to_epos_image(text):
         text_width = bbox[2] - bbox[0]
 
 
-        x = (width - text_width) // 2
+        x = 95
 
 
         draw.text(
