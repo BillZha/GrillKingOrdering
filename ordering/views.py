@@ -605,13 +605,26 @@ def epson_direct_print(request):
             .order_by("created_at")
             .first()
         )
-
+        print(
+            "DIRECT PRINT ORDER:",
+            order.id if order else "NONE"
+        )
         # 没有新订单
         if not order:
             xml = (
                 '<?xml version="1.0" encoding="utf-8"?>'
                 '<PrintRequestInfo Version="2.00">'
                 '</PrintRequestInfo>'
+            )
+
+            print(
+                "DIRECT PRINT XML LENGTH:",
+                len(xml)
+            )
+
+            print(
+                "DIRECT PRINT JOB:",
+                job_id
             )
 
             return HttpResponse(
