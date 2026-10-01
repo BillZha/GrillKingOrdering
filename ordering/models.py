@@ -99,6 +99,18 @@ class Order(models.Model):
         null=True
     )
 
+    subtotal = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    tax_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
     total_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,

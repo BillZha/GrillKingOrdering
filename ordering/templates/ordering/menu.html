@@ -1003,7 +1003,24 @@
         <div id="cart-items"></div>
 
         <div class="cart-checkout">
-            <span id="checkout-total">Total: $0.00</span>
+        <div class="checkout-summary" style="width:100%;">
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span>Subtotal</span>
+                <span id="checkout-subtotal">$0.00</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>HST (13%)</span>
+                <span id="checkout-tax">$0.00</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed #aaa; padding-top:12px; font-size:20px; font-weight:bold;">
+                <span>Total</span>
+               <span id="checkout-total">$0.00</span>
+            </div>
+
+        </div>
             <button id="place-order-btn" onclick="placeOrder()">
     Place Order
 </button>
@@ -1223,15 +1240,24 @@ function increaseItem(name, spicy) {
             total += item.price * item.quantity;
         });
 
-        document.getElementById("cart-count").innerText =
-            count + (count === 1 ? " item" : " items");
+        // Tax calculation
+const subtotal = total;
+const tax = Math.round((subtotal * 0.13 + Number.EPSILON) * 100) / 100;
+const grandTotal = Math.round((subtotal + tax) * 100) / 100;
 
-        document.getElementById("cart-total").innerText =
-            "View Cart · $" + total.toFixed(2);
+// Bottom View Cart button
+document.getElementById("cart-total").innerText =
+    "View Cart · $" + grandTotal.toFixed(2);
 
-        document.getElementById("checkout-total").innerText =
-            "Total: $" + total.toFixed(2);
-    }
+// Checkout summary
+document.getElementById("checkout-subtotal").innerText =
+    "$" + subtotal.toFixed(2);
+
+document.getElementById("checkout-tax").innerText =
+    "$" + tax.toFixed(2);
+
+document.getElementById("checkout-total").innerText =
+    "$" + grandTotal.toFixed(2);
 
 
     function openCart() {

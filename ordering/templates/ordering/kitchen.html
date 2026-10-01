@@ -487,10 +487,24 @@
        ${itemsHtml}
     </div>
 
-    <div class="order-total">
-       <span>ORDER TOTAL</span>
-       <strong>$${Number(order.total_amount).toFixed(2)}</strong>
+    <div class="order-total" style="display:block;">
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span>SUBTOTAL</span>
+        <span>$${Number(order.subtotal).toFixed(2)}</span>
     </div>
+
+    <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+        <span>HST (13%)</span>
+        <span>$${Number(order.tax_amount).toFixed(2)}</span>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; border-top:1px dashed #888; padding-top:10px;">
+        <span>TOTAL</span>
+        <strong>$${Number(order.total_amount).toFixed(2)}</strong>
+    </div>
+
+</div>
 
     <div class="actions">
         ${buttons}

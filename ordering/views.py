@@ -22,6 +22,8 @@ from io import BytesIO
 
 import qrcode
 
+from decimal import Decimal, ROUND_HALF_UP
+from django.db import transaction
 
 from django.http import JsonResponse
 
@@ -69,106 +71,101 @@ def menu(request, table_number=0):
 
 
 @require_POST
-
 def place_order(request):
-
     try:
-
         data = json.loads(request.body)
 
-
-        table_number = int(data.get('table_number', 8))
-
-        cart = data.get('cart', [])
-
+        table_number = int(data.get("table_number", 8))
+        cart = data.get("cart", [])
 
         if not cart:
-
             return JsonResponse({
-
-                'success': False,
-
-                'error': 'Cart is empty.'
-
+                "success": False,
+                "error": "Cart is empty."
             }, status=400)
 
+        subtotal = Decimal("0.00")
+        tax_rate = Decimal("0.13")
 
-        total = 0
+        with transaction.atomic():
 
-
-        order = Order.objects.create(
-
-            table_number=table_number,
-
-            total_amount=0,
-
-            status='new'
-
-        )
-
-
-        for item in cart:
-
-            name = item['name']
-
-            price = float(item['price'])
-
-            quantity = int(item['quantity'])
-
-            spicy = item.get('spicy', '')
-
-
-            total += price * quantity
-
-
-            menu_item = MenuItem.objects.filter(
-
-                name=name
-
-            ).first()
-
-
-            OrderItem.objects.create(
-
-                order=order,
-
-                menu_item=menu_item,
-
-                name=name,
-
-                price=price,
-
-                quantity=quantity,
-
-                spicy=spicy
-
+            order = Order.objects.create(
+                table_number=table_number,
+                subtotal=0,
+                tax_amount=0,
+                total_amount=0,
+                status="new"
             )
 
+            for item in cart:
+                name = item["name"]
 
-        order.total_amount = total
+                price = Decimal(
+                    str(item["price"])
+                )
 
-        order.save()
+                quantity = int(
+                    item["quantity"]
+                )
 
+                spicy = item.get("spicy", "")
+
+                subtotal += price * quantity
+
+                menu_item = MenuItem.objects.filter(
+                    name=name
+                ).first()
+
+                OrderItem.objects.create(
+                    order=order,
+                    menu_item=menu_item,
+                    name=name,
+                    price=price,
+                    quantity=quantity,
+                    spicy=spicy
+                )
+
+            # 税前金额
+            subtotal = subtotal.quantize(
+                Decimal("0.01"),
+                rounding=ROUND_HALF_UP
+            )
+
+            # HST 13%
+            tax_amount = (
+                subtotal * tax_rate
+            ).quantize(
+                Decimal("0.01"),
+                rounding=ROUND_HALF_UP
+            )
+
+            # 最终含税金额
+            total_amount = subtotal + tax_amount
+
+            order.subtotal = subtotal
+            order.tax_amount = tax_amount
+            order.total_amount = total_amount
+
+            order.save(
+                update_fields=[
+                    "subtotal",
+                    "tax_amount",
+                    "total_amount"
+                ]
+            )
 
         return JsonResponse({
-
-            'success': True,
-
-            'order_id': order.id,
-
-            'total': float(order.total_amount)
-
+            "success": True,
+            "order_id": order.id,
+            "subtotal": float(subtotal),
+            "tax_amount": float(tax_amount),
+            "total": float(total_amount)
         })
 
-
     except Exception as e:
-
         return JsonResponse({
-
-            'success': False,
-
-            'error': str(e)
-
+            "success": False,
+            "error": str(e)
         }, status=500)
 
 
@@ -624,6 +621,10 @@ def kitchen_orders(request):
             "table_number": order.table_number,
 
             "status": order.status,
+
+            "subtotal": str(order.subtotal),
+
+            "tax_amount": str(order.tax_amount),
 
             "total_amount": str(order.total_amount),
 
@@ -1133,22 +1134,30 @@ def epson_direct_print(request):
             + items_xml +
 
             '<text align="center"/>'
+
             '<text width="1" height="1"/>'
             '<text em="false"/>'
+
             '<text>--------------------------------&#10;</text>'
+
+            '<feed line="1"/>'
+
+            f'<text>SUBTOTAL    ${order.subtotal:.2f}&#10;</text>'
+
+            f'<text>HST (13%)   ${order.tax_amount:.2f}&#10;</text>'
+
             '<feed line="1"/>'
 
             '<text width="1" height="2"/>'
             '<text em="true"/>'
-            '<text>ORDER TOTAL&#10;</text>'
 
-            '<text width="2" height="2"/>'
-            f'<text>${order.total_amount:.2f}&#10;</text>'
+            f'<text>TOTAL: ${order.total_amount:.2f}&#10;</text>'
 
             '<feed line="1"/>'
 
             '<text width="1" height="1"/>'
             '<text em="false"/>'
+
             '<text>END ORDER&#10;</text>'
 
             '<feed line="6"/>'
