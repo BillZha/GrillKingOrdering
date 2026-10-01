@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -597,6 +598,77 @@
 
 .option-section input {
     margin-right: 8px;
+}
+
+/* Promotion popup */
+
+.promotion-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(0, 0, 0, 0.78);
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+.promotion-box {
+    position: relative;
+    width: 100%;
+    max-width: 480px;
+    max-height: 92vh;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.promotion-image-area {
+    overflow-y: auto;
+    min-height: 0;
+    text-align: center;
+}
+
+.promotion-image-area img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.promotion-close {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+.promotion-order-btn {
+    flex-shrink: 0;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    background: #173f35;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .promotion-box {
+        max-height: 90dvh;
+    }
 }
     </style>
 </head>
@@ -1775,5 +1847,37 @@ document
         }
     );
 </script>
+
+<!-- GRILL KING Promotion Popup -->
+<div id="promotion-popup" class="promotion-overlay">
+
+    <div class="promotion-box">
+
+        <button
+            type="button"
+            class="promotion-close"
+            onclick="closePromotion()"
+            aria-label="Close promotion">
+            &times;
+        </button>
+
+        <div class="promotion-image-area">
+            <img
+                src="{% static 'ordering/promotions/mid_autumn_promo.png' %}"
+                alt="Grill King Special Offers"
+            >
+        </div>
+
+        <button
+            type="button"
+            class="promotion-order-btn"
+            onclick="closePromotion()">
+            Start Ordering
+        </button>
+
+    </div>
+
+</div>
+
 </body>
 </html>
