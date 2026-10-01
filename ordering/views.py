@@ -625,6 +625,8 @@ def kitchen_orders(request):
 
             "status": order.status,
 
+            "total_amount": str(order.total_amount),
+
             "created_at": timezone.localtime(
 
                 order.created_at
@@ -1134,6 +1136,19 @@ def epson_direct_print(request):
             '<text width="1" height="1"/>'
             '<text em="false"/>'
             '<text>--------------------------------&#10;</text>'
+            '<feed line="1"/>'
+
+            '<text width="1" height="2"/>'
+            '<text em="true"/>'
+            '<text>ORDER TOTAL&#10;</text>'
+
+            '<text width="2" height="2"/>'
+            f'<text>${order.total_amount:.2f}&#10;</text>'
+
+            '<feed line="1"/>'
+
+            '<text width="1" height="1"/>'
+            '<text em="false"/>'
             '<text>END ORDER&#10;</text>'
 
             '<feed line="6"/>'
