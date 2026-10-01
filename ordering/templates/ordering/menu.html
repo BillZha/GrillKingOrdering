@@ -1231,35 +1231,44 @@ function increaseItem(name, spicy) {
     renderCart();
 }
 
-    function updateCart() {
-        let count = 0;
-        let total = 0;
+   function updateCart() {
+    let count = 0;
+    let total = 0;
 
-        cart.forEach(item => {
-            count += item.quantity;
-            total += item.price * item.quantity;
-        });
+    cart.forEach(item => {
+        count += item.quantity;
+        total += item.price * item.quantity;
+    });
 
-        // Tax calculation
-const subtotal = total;
-const tax = Math.round((subtotal * 0.13 + Number.EPSILON) * 100) / 100;
-const grandTotal = Math.round((subtotal + tax) * 100) / 100;
+    // 更新购物车数量
+    document.getElementById("cart-count").innerText =
+        count + (count === 1 ? " item" : " items");
 
-// Bottom View Cart button
-document.getElementById("cart-total").innerText =
-    "View Cart · $" + grandTotal.toFixed(2);
+    // HST 13%
+    const subtotal = total;
 
-// Checkout summary
-document.getElementById("checkout-subtotal").innerText =
-    "$" + subtotal.toFixed(2);
+    const tax = Math.round(
+        (subtotal * 0.13 + Number.EPSILON) * 100
+    ) / 100;
 
-document.getElementById("checkout-tax").innerText =
-    "$" + tax.toFixed(2);
+    const grandTotal = Math.round(
+        (subtotal + tax) * 100
+    ) / 100;
 
-document.getElementById("checkout-total").innerText =
-    "$" + grandTotal.toFixed(2);
+    // 底部购物车金额
+    document.getElementById("cart-total").innerText =
+        "View Cart · $" + grandTotal.toFixed(2);
+
+    // 购物车结账明细
+    document.getElementById("checkout-subtotal").innerText =
+        "$" + subtotal.toFixed(2);
+
+    document.getElementById("checkout-tax").innerText =
+        "$" + tax.toFixed(2);
+
+    document.getElementById("checkout-total").innerText =
+        "$" + grandTotal.toFixed(2);
 }
-
 
     function openCart() {
         renderCart();
