@@ -1879,5 +1879,24 @@ document
 
 </div>
 
+<script>
+(function () {
+    const promotion = document.getElementById("promotion-popup");
+
+    if (!promotion) return;
+
+    // 每次进入点餐页面自动显示活动
+    promotion.style.display = "flex";
+})();
+
+function closePromotion() {
+    const promotion = document.getElementById("promotion-popup");
+
+    if (promotion) {
+        promotion.style.display = "none";
+    }
+}
+</script>
+
 </body>
 </html>
