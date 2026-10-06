@@ -668,6 +668,71 @@
     cursor: pointer;
 }
 
+.success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    background: rgba(0, 0, 0, 0.72);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.success-box {
+    width: 100%;
+    max-width: 430px;
+    background: white;
+    border-radius: 20px;
+    padding: 32px 24px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.success-check {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    background: #173f35;
+    color: white;
+    font-size: 46px;
+    line-height: 72px;
+    font-weight: bold;
+}
+
+.success-box h2 {
+    margin: 0 0 14px;
+    font-size: 25px;
+}
+
+.success-message {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.success-order-info {
+    margin: 22px 0;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.success-close-btn {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    background: #173f35;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
 @media (max-width: 768px) {
     .promotion-box {
         width: 96vw;
@@ -1034,41 +1099,35 @@
 </div>
 
 <div id="cart-modal" class="cart-modal">
-    <div id="success-modal" class="item-modal">
-    <div class="item-panel">
+    <div id="success-modal" class="success-overlay">
+    <div class="success-box">
 
-        <div class="item-modal-header">
-            <h2>Order Received</h2>
-
-            <button
-                type="button"
-                class="item-close"
-                onclick="closeSuccessModal()">
-                ×
-            </button>
+        <div class="success-check">
+            ✓
         </div>
 
-        <div style="text-align:center; padding:20px 0;">
+        <h2>
+            Order Placed Successfully!
+        </h2>
 
-            <h2 id="success-order-number">
-                Order #0
-            </h2>
+        <p class="success-message">
+            Your order has been sent to the kitchen.<br>
+            Please wait patiently while we prepare your food.
+        </p>
 
-            <p id="success-table-number"
-               style="margin-top:10px; font-size:18px;">
+        <div class="success-order-info">
+            <div id="success-order-number">
+                Order #00
+            </div>
+
+            <div id="success-table-number">
                 Table 00
-            </p>
-
-            <p style="margin-top:15px; color:#666;">
-                Your order has been received.
-                Please wait while we prepare your food.
-            </p>
-
+            </div>
         </div>
 
         <button
             type="button"
-            class="detail-add-btn"
+            class="success-close-btn"
             onclick="closeSuccessModal()">
             Continue Ordering
         </button>
@@ -1175,7 +1234,8 @@
             }
 
             if (successModal) {
-                successModal.style.display = "block";
+                successModal.style.display = "flex";
+                document.body.style.overflow = "hidden";
             }
 
         } else {
