@@ -1099,7 +1099,42 @@
 </div>
 
 <div id="cart-modal" class="cart-modal">
-    <div id="success-modal" class="success-overlay">
+    
+    <div class="cart-panel">
+        <div class="cart-header">
+            <h2>Your Order</h2>
+            <button onclick="closeCart()">×</button>
+        </div>
+
+        <div id="cart-items"></div>
+
+        <div class="cart-checkout">
+        <div class="checkout-summary" style="width:100%;">
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span>Subtotal</span>
+                <span id="checkout-subtotal">$0.00</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>HST (13%)</span>
+                <span id="checkout-tax">$0.00</span>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed #aaa; padding-top:12px; font-size:20px; font-weight:bold;">
+                <span>Total</span>
+               <span id="checkout-total">$0.00</span>
+            </div>
+
+        </div>
+            <button id="place-order-btn" onclick="placeOrder()">
+    Place Order
+</button>
+        </div>
+    </div>
+</div>
+
+<div id="success-modal" class="success-overlay">
     <div class="success-box">
 
         <div class="success-check">
@@ -1132,39 +1167,6 @@
             Continue Ordering
         </button>
 
-    </div>
-</div>
-    <div class="cart-panel">
-        <div class="cart-header">
-            <h2>Your Order</h2>
-            <button onclick="closeCart()">×</button>
-        </div>
-
-        <div id="cart-items"></div>
-
-        <div class="cart-checkout">
-        <div class="checkout-summary" style="width:100%;">
-
-            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
-                <span>Subtotal</span>
-                <span id="checkout-subtotal">$0.00</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                <span>HST (13%)</span>
-                <span id="checkout-tax">$0.00</span>
-            </div>
-
-            <div style="display:flex; justify-content:space-between; border-top:1px dashed #aaa; padding-top:12px; font-size:20px; font-weight:bold;">
-                <span>Total</span>
-               <span id="checkout-total">$0.00</span>
-            </div>
-
-        </div>
-            <button id="place-order-btn" onclick="placeOrder()">
-    Place Order
-</button>
-        </div>
     </div>
 </div>
 
